@@ -12,11 +12,12 @@ RUN npm install --production
 # Copy the rest of the application code
 COPY . .
 
+# Create a production build
+RUN npm run build
+
 # Expose the webhook's port
 EXPOSE 3000
 
-# Start the webhook
-CMD ["npm", "build"]
 
 # Start the webhook
 CMD ["npm", "start"]
