@@ -4,8 +4,7 @@ name: Publish build
 
 on:
   push:
-    tags:
-      - "*"
+    - '*'
 
 jobs:
   docker:
