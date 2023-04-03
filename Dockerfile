@@ -16,4 +16,7 @@ COPY . .
 EXPOSE 3000
 
 # Start the webhook
+CMD ["npm", "build"]
+
+# Start the webhook
 CMD ["npm", "start"]
