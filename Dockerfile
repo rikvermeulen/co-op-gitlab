@@ -40,22 +40,22 @@ FROM alpine:3.15 AS production
 
 RUN apk add --no-cache nodejs npm
 
-WORKDIR /app/dist
+WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
 
 # Set node env
 ENV NODE_ENV=production
 ENV CONFIG_DIR=/
 
 COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/dist ./
+COPY --from=build /app/dist ./dist
 
 # Expose the webhook's port
 EXPOSE 3000
 
 ENV PORT 3000
 
-# Set the working directory to the dist directory
-WORKDIR /app/dist
 
 
 # Start the webhook
