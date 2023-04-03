@@ -4,7 +4,7 @@ name: Publish build
 
 on:
   push:
-    branches: [main, test]
+    branches: [main, test, dev]
 
 jobs:
   docker:
