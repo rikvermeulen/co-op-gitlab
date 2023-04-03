@@ -46,11 +46,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV CONFIG_DIR=/
 
-COPY --from=build /app/public ./public
 COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/dist ./
 
 # Expose the webhook's port
-COPY --from=build /app/dist ./
 
 EXPOSE 3000
 
