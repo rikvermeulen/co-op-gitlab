@@ -30,4 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: rikvermeulen/${{ github.event.repository.name }}:${{ steps.get_version.outputs.VERSION }}.${{ github.run_id }}
+          tags: rikvermeulen/${{ github.event.repository.name }}:${{ github.run_id }}
