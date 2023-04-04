@@ -54,7 +54,7 @@ class GPT {
 
   constructor(prompt: string) {
     this.prompt = prompt;
-    this.model = 'gpt-3.5-turbo-0301';
+    this.model = 'gpt-4';
     this.tokens = 2048;
     this.temperature = 0.5;
   }

@@ -18,10 +18,9 @@ export async function processParsedDiff(
     await asyncForEach(file.chunks, async (chunk: any) => {
       const addedLines = chunk.changes.filter((change: any) => change.type === 'add');
       if (addedLines.length > 0) {
-        console.log();
         codeSnippets.push({
           file: change.new_path,
-          lines: addedLines.map((line: any) => line.content),
+          lines: addedLines.map((line: any) => `${line.ln}${line.content}`),
           lineNumber: addedLines[addedLines.length - 1].ln,
         });
       }
@@ -29,7 +28,10 @@ export async function processParsedDiff(
   });
 
   await asyncForEach(codeSnippets, async (code: any) => {
-    const prompt = `Please provide feedback or suggestions for improvement on the following change in file '${change.new_path}', line ${code.lineNumber}:\n\n${code.lines}\n\nSuggestion in markdown format:`;
+    const prompt = `Please provide feedback on the following code snippet, with a focus on the added lines (indicated by '+') and their line numbers. Suggest any improvements that can be made to the code in terms of readability, efficiency, or best practices and check on possible errors and data checking. Please do not provide feedback on missing explanations or comments in the code. After providing updated code snippet, please include it within a markdown collapsible section titled "Click to expand."
+          Language: ${change.new_path.split('.').pop()}
+          Code snippet:
+          \n\n${change.diff}\n\n`;
 
     const feedback = await fetchGPTFeedback(prompt);
 

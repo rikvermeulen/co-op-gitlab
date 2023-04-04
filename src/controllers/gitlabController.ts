@@ -5,6 +5,7 @@ import { checkFileFormat } from '@/util/checkFileFormat.js';
 import { processParsedDiff } from '@/util/parseDiff.js';
 
 import type { ChangesGitLab } from '@/types/index.js';
+import { sendMessage } from 'src/module/slack.js';
 
 const controller = new Controller('gitlabController');
 
