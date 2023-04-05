@@ -1,6 +1,7 @@
 import { addComment } from '@/util/addComment';
 import { GPT } from '@/services/gpt';
 import parseDiff from 'parse-diff';
+import { asyncForEach } from '@/helpers/asyncForEach';
 
 import type { GitLabChanges } from '@/types/index';
 
@@ -46,12 +47,6 @@ export async function handleFeedback(
       );
     }
   });
-}
-
-async function asyncForEach(array: any[], callback: Function) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
 }
 
 async function fetchGPTFeedback(prompt: string): Promise<string | null> {
