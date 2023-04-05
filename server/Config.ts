@@ -13,6 +13,7 @@ const config = {
   OPENAI_ORG: process.env.OPENAI_ORG,
 
   SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
+  SLACK_CHANNEL: process.env.SLACK_CHANNEL,
 };
 
 export { config };
