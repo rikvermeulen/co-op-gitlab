@@ -22,6 +22,7 @@ export type GitlabEvent = {
     source_branch: string;
     target_branch: string;
     work_in_progress: boolean;
+    source: { description: string };
   };
 };
 
@@ -38,4 +39,14 @@ export interface GitlabCommentPosition {
 export interface GitlabCommentPayload {
   body: string;
   position: GitlabCommentPosition;
+}
+
+export interface slackMergeRequestMessage {
+  id: number;
+  source_branch: string;
+  target_branch: string;
+  name: string;
+  user: string;
+  description: string;
+  url: string;
 }
