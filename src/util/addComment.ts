@@ -1,19 +1,6 @@
-import { GitLab } from '@/util/connect.js';
+import { GitLab } from '@/services/gitlab.js';
 
-interface Position {
-  base_sha: string;
-  start_sha: string;
-  head_sha: string;
-  position_type: string;
-  new_path: string;
-  old_path: string;
-  new_line: number;
-}
-
-interface Payload {
-  body: string;
-  position: Position;
-}
+import type { GitlabCommentPosition, GitlabCommentPayload } from '@/types/index.js';
 
 export async function addComment(
   projectId: number,
@@ -29,7 +16,7 @@ export async function addComment(
     const versionData = await getLatestVersion(url);
     const positionData = createPositionData(versionData, oldPath, filePath, new_line);
 
-    const payload: Payload = {
+    const payload: GitlabCommentPayload = {
       body: note,
       position: positionData,
     };
@@ -52,7 +39,7 @@ function createPositionData(
   oldPath: string,
   filePath: string,
   new_line: number,
-): Position {
+): GitlabCommentPosition {
   return {
     base_sha: versionData.base_commit_sha,
     start_sha: versionData.start_commit_sha,

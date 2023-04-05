@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import { Controller } from '@/server/Controllers.js';
-import { GitLab } from '@/util/connect.js';
-import { checkFileFormat } from '@/util/checkFileFormat.js';
-import { processParsedDiff } from '@/util/parseDiff.js';
+import { Slack } from '@/services/slack.js';
+import { validateMergeRequest } from '@/util/validateMergeRequest.js';
+import { logger } from '@/server/Logger.js';
 
-import type { ChangesGitLab } from '@/types/index.js';
-import { sendMessage } from 'src/module/slack.js';
+import type { GitlabEvent } from '@/types/index.js';
 
 const controller = new Controller('gitlabController');
 
@@ -14,39 +13,41 @@ controller.post('/', [], async (req: Request, res: Response) => {
   const payload = req.body;
 
   if (event === 'Merge Request Hook') {
-    await handleMergeRequestEvent(payload);
+    try {
+      await handleMergeRequestEvent(payload);
+    } catch (error) {
+      console.error('Error handling merge request event:', error);
+    }
   }
 
   res.sendStatus(200);
 });
 
-async function handleMergeRequestEvent(payload: any) {
-  //acion = opened, closed, merged, etc and idd = merge request id
-  const { state, iid } = payload.object_attributes;
-  const projectId = payload.project.id;
+async function handleMergeRequestEvent(payload: GitlabEvent) {
+  const user = payload.user.name;
+  const { id, name } = payload.project;
+  const { state, action, iid, url, source_branch, target_branch, work_in_progress } =
+    payload.object_attributes;
 
-  if (!projectId || !iid) throw new Error('Invalid project ID or merge request ID');
+  if (!id || !iid) throw new Error('Invalid project ID or merge request ID');
 
-  // Only process merge requests that are opened
-  if (state === 'opened') {
-    const url = `projects/${projectId}/merge_requests/${iid}/diffs`;
-    // Get all changes in the merge request
-    const changes = await new GitLab('GET', url).connect();
+  if (action === 'open' && state === 'opened' && !work_in_progress) {
+    try {
+      const slack = new Slack();
+      const text = `Merge Request: for ${name} created by ${user} - ${source_branch} -> ${target_branch} - ${url}`;
 
-    // Process each change
-    await asyncForEach(changes, async (change: ChangesGitLab) => {
-      const isValid = await checkFileFormat(change.new_path);
+      const resultSlack = await slack.sendMessage('pull-request-dev', text);
+      logger.info('Slack message sent', resultSlack);
+    } catch (error) {
+      logger.error('Error sending message to Slack:', error);
+    }
 
-      if (change.deleted_file || !isValid) return;
-
-      await processParsedDiff(change, projectId, iid);
-    });
-  }
-}
-
-async function asyncForEach(array: any[], callback: Function) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
+    try {
+      const mergeRequest = await validateMergeRequest(id, iid);
+      logger.info('Merge request validated', mergeRequest);
+    } catch (error) {
+      logger.error('Error validating merge request:', error);
+    }
   }
 }
 

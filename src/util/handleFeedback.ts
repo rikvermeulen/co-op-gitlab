@@ -1,11 +1,11 @@
 import { addComment } from '@/util/addComment.js';
-import { GPT } from '@/util/connect.js';
+import { GPT } from '@/services/gpt.js';
 import parseDiff from 'parse-diff';
 
-import type { ChangesGitLab } from '@/types/index.js';
+import type { GitLabChanges } from '@/types/index.js';
 
-export async function processParsedDiff(
-  change: ChangesGitLab,
+export async function handleFeedback(
+  change: GitLabChanges,
   projectId: number,
   mergeRequestId: number,
 ) {

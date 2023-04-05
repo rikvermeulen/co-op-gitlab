@@ -11,6 +11,8 @@ const config = {
 
   OPENAI_KEY: process.env.OPENAI_KEY,
   OPENAI_ORG: process.env.OPENAI_ORG,
+
+  SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
 };
 
 export { config };

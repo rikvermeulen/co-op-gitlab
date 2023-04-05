@@ -1,7 +1,6 @@
-// Description: This file contains all the types used in the application
+// This file contains all the types used in the application
 
-//interface for the gitlab merge request changes
-export interface ChangesGitLab {
+export interface GitLabChanges {
   diff: string;
   new_path: string;
   old_path: string;
@@ -10,4 +9,33 @@ export interface ChangesGitLab {
   new_file: boolean;
   renamed_file: boolean;
   deleted_file: boolean;
+}
+
+export type GitlabEvent = {
+  user: { name: string };
+  project: { id: number; name: string };
+  object_attributes: {
+    state: string;
+    action: string;
+    iid: number;
+    url: string;
+    source_branch: string;
+    target_branch: string;
+    work_in_progress: boolean;
+  };
+};
+
+export interface GitlabCommentPosition {
+  base_sha: string;
+  start_sha: string;
+  head_sha: string;
+  position_type: string;
+  new_path: string;
+  old_path: string;
+  new_line: number;
+}
+
+export interface GitlabCommentPayload {
+  body: string;
+  position: GitlabCommentPosition;
 }

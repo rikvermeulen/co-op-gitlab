@@ -11,7 +11,9 @@
       "@/server/*": ["server/*"],
       "@/util/*": ["src/util/*"],
       "@/types/*": ["src/types/*"],
-      "@/controllers/*": ["src/controllers/*"]
+      "@/controllers/*": ["src/controllers/*"],
+      "@/helpers/*": ["src/helpers/*"],
+      "@/services/*": ["src/services/*"]
     },
     "checkJs": true,
 
