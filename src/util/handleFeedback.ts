@@ -1,8 +1,8 @@
-import { addComment } from '@/util/addComment.js';
-import { GPT } from '@/services/gpt.js';
+import { addComment } from '@/util/addComment';
+import { GPT } from '@/services/gpt';
 import parseDiff from 'parse-diff';
 
-import type { GitLabChanges } from '@/types/index.js';
+import type { GitLabChanges } from '@/types/index';
 
 export async function handleFeedback(
   change: GitLabChanges,

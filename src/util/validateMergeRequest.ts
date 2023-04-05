@@ -1,10 +1,10 @@
-import { GitLab } from '@/services/gitlab.js';
-import { checkFileFormat } from '@/util/checkFileFormat.js';
-import { handleFeedback } from '@/util/handleFeedback.js';
-import { asyncForEach } from '@/helpers/asyncForEach.js';
+import { GitLab } from '@/services/gitlab';
+import { checkFileFormat } from '@/util/checkFileFormat';
+import { handleFeedback } from '@/util/handleFeedback';
+import { asyncForEach } from '@/helpers/asyncForEach';
 
-import type { GitLabChanges } from '@/types/index.js';
-import { logger } from '@/server/Logger.js';
+import type { GitLabChanges } from '@/types/index';
+import { logger } from '@/server/Logger';
 
 async function validateMergeRequest(id: number, iid: number) {
   const url = `projects/${id}/merge_requests/${iid}/diffs`;

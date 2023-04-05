@@ -1,4 +1,4 @@
-import { GitLab } from '@/services/gitlab.js';
+import { GitLab } from '@/services/gitlab';
 
 import type { GitlabCommentPosition, GitlabCommentPayload } from '@/types/index.js';
 

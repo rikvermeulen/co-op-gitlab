@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
-import { config } from '@/server/Config.js';
+import { config } from '@/server/Config';
 
 const { OPENAI_KEY, OPENAI_ORG } = config;
 

@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api';
-import { config } from '@/server/Config.js';
-import { logger } from '@/server/Logger.js';
+import { config } from '@/server/Config';
+import { logger } from '@/server/Logger';
 
 const { SLACK_BOT_TOKEN } = config;
 

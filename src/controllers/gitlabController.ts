@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { Controller } from '@/server/Controllers.js';
-import { Slack } from '@/services/slack.js';
-import { validateMergeRequest } from '@/util/validateMergeRequest.js';
-import { logger } from '@/server/Logger.js';
+import { Controller } from '@/server/Controllers';
+import { Slack } from '@/services/slack';
+import { validateMergeRequest } from '@/util/validateMergeRequest';
+import { logger } from '@/server/Logger';
 
-import type { GitlabEvent } from '@/types/index.js';
+import type { GitlabEvent } from '@/types/index';
 
 const controller = new Controller('gitlabController');
 
