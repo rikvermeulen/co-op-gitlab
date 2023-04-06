@@ -1,4 +1,5 @@
 import fetch, { Response } from 'node-fetch';
+
 import { config } from '@/server/Config';
 
 const { GITLAB_HOST, GITLAB_TOKEN } = config;

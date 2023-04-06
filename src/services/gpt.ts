@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
+
 import { config } from '@/server/Config';
 
 const { OPENAI_KEY, OPENAI_ORG } = config;
@@ -12,9 +13,9 @@ class GPT {
   private tokens: number;
   private temperature: number;
 
-  constructor(prompt: string) {
+  constructor(prompt: string, model: AvailableChatModels) {
     this.prompt = prompt;
-    this.model = 'gpt-4';
+    this.model = model;
     this.tokens = 2048;
     this.temperature = 0.5;
   }
