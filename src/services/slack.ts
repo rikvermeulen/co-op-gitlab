@@ -13,6 +13,7 @@ class Slack {
     this.channel = SLACK_CHANNEL as string;
   }
 
+  // Function to send a message to the channel
   async sendMessage(text: Object, ts?: string): Promise<void> {
     try {
       const result = await this.web.chat.postMessage({
@@ -21,13 +22,14 @@ class Slack {
         ...(ts && { thread_ts: ts }),
       });
 
-      logger.status('Slack message sent', result);
+      logger.status('Slack message sent to', result.channel);
     } catch (error) {
       logger.error('Error sending message to Slack:', error);
     }
   }
 
-  async sendReaction(ts: string, emoji: string): Promise<void> {
+  // Function to send a reaction<emoji> to a message
+  async sendReaction(emoji: string, ts: string): Promise<void> {
     try {
       const result = await this.web.reactions.add({
         channel: this.channel,
@@ -35,14 +37,14 @@ class Slack {
         name: emoji,
       });
 
-      logger.status('Slack message sent', result);
+      logger.status('Slack message sent to', result.channel);
     } catch (error) {
       logger.error('Error sending message to Slack:', error);
     }
   }
 
+  // Function to delete all messages from the bot in the channel
   async deleteAllMessages(): Promise<void> {
-    //This func deleltes only messages from the bot
     try {
       let allMessages = await this.web.conversations.history({
         channel: this.channel,
@@ -59,12 +61,12 @@ class Slack {
       logger.status(`Deleting ${messages.length} messages...`);
 
       for (const message of messages) {
-        if (message.bot_profile) {
-          await this.web.chat.delete({
-            channel: this.channel,
-            ts: message.ts || '',
-          });
-        }
+        if (!message.ts) return;
+        if (message.bot_profile) continue;
+        await this.web.chat.delete({
+          channel: this.channel,
+          ts: message.ts,
+        });
       }
 
       logger.success('All messages deleted');

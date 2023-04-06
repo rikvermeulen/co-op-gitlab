@@ -1,27 +1,62 @@
+import { GPT } from '@/services/gpt';
 import { GitLab } from '@/services/gitlab';
-import { checkFileFormat } from '@/util/checkFileFormat';
-import { handleFeedback } from '@/util/handleFeedback';
+import { GitLabChanges } from '@/types/index';
 import { asyncForEach } from '@/helpers/asyncForEach';
-
-import type { GitLabChanges } from '@/types/index';
+import { checkFileFormat } from '@/util/checkFileFormat';
+import { createComment } from '@/util/gitlab/createComment';
 import { logger } from '@/server/Logger';
 
-async function validateMergeRequest(id: number, iid: number) {
+async function validateMergeRequest(id: number, iid: number): Promise<void> {
   const url = `projects/${id}/merge_requests/${iid}/diffs`;
-  // Get all changes in the merge request
-  const changes = await new GitLab('GET', url).connect();
 
-  // Process each change
-  await asyncForEach(changes, async (change: GitLabChanges) => {
-    const isValid = await checkFileFormat(change.new_path);
+  try {
+    // Get all changes in the merge request
+    const changes = await new GitLab('GET', url).connect();
 
-    if (change.deleted_file || !isValid) {
-      logger.info('File is deleted or not valid', change.new_path);
-      return;
+    // Process each change
+    await asyncForEach(changes, async (change: GitLabChanges) => {
+      const isValid = await checkFileFormat(change.new_path);
+
+      if (change.deleted_file || !isValid) {
+        logger.info(
+          `File is deleted or does not meet the requirements for feedback: ${change.new_path}`,
+        );
+        return;
+      }
+
+      await handleFeedback(change, id, iid);
+    });
+
+    logger.info('Merge request validated');
+  } catch (error) {
+    logger.error(`Error validating merge request: ${error}`);
+  }
+}
+
+async function handleFeedback(change: GitLabChanges, projectId: number, mergeRequestId: number) {
+  try {
+    const lineNumber = change.diff.match(/\n/g)?.length || 0;
+
+    const prompt = `Please provide a review and feedback on the following code snippet, with a focus on the added lines (indicated by '+') and their line numbers. Suggest any improvements that can be made to the code in terms of readability, efficiency, or best practices and check on possible errors and data checking. Please do not provide feedback on missing explanations or comments in the code. Providing the updated code snippet within a markdown collapsible section titled "Click here to expand to see the snippet."
+          Language: ${change.new_path.split('.').pop()}
+          Code snippet:
+          \n\n${change.diff}\n\n`;
+
+    const feedback = await new GPT(prompt, 'gpt-3.5-turbo').connect();
+
+    if (feedback) {
+      await createComment(
+        projectId,
+        mergeRequestId,
+        change.old_path,
+        change.new_path,
+        feedback,
+        lineNumber - 2,
+      );
     }
-
-    // await handleFeedback(change, projectId, iid);
-  });
+  } catch (error) {
+    logger.error(`Error handling feedback for change ${change.new_path}: ${error}`);
+  }
 }
 
 export { validateMergeRequest };

@@ -15,6 +15,7 @@ export type GitlabEvent = {
   user: { name: string };
   project: { id: number; name: string };
   object_attributes: {
+    title: string;
     state: string;
     action: string;
     iid: number;
@@ -22,7 +23,7 @@ export type GitlabEvent = {
     source_branch: string;
     target_branch: string;
     work_in_progress: boolean;
-    source: { description: string };
+    description: string;
   };
 };
 
@@ -43,10 +44,11 @@ export interface GitlabCommentPayload {
 
 export interface slackMergeRequestMessage {
   id: number;
-  source_branch: string;
-  target_branch: string;
   name: string;
+  title: string;
   user: string;
   description: string;
   url: string;
+  source_branch: string;
+  target_branch: string;
 }
