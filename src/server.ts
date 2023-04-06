@@ -1,6 +1,5 @@
 import { Runtime } from '@/server/Runtime.js';
 import { Server } from '@/server/Server.js';
-
 import { router } from './routers/gitlab.js';
 
 const server = new Server();
