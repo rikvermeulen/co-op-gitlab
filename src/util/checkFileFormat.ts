@@ -16,6 +16,7 @@ async function checkFileFormat(fileName: string): Promise<boolean> {
     '.yaml',
     '.xml',
     '.csv',
+    '.toml',
   ];
 
   // List of excluded file names
