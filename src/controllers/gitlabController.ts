@@ -6,7 +6,7 @@ import { Slack } from '@/services/slack';
 import { createSlackMessage } from '@/util/slack/getMergeMessage';
 import { getTimeStampMessage } from '@/util/slack/getTimeStamp';
 import { logger } from '@/server/Logger';
-import { validateMergeRequest } from '@/util/validateMergeRequest';
+import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
 
 const controller = new Controller('gitlabController');
 
@@ -63,7 +63,7 @@ async function handleMergeRequestEvent(payload: GitlabEvent) {
       logger.error('Error sending message to Slack:', error);
     }
     try {
-      await validateMergeRequest(id, iid);
+      await handleMergeRequestFeedback(id, iid);
     } catch (error) {
       logger.error('Error validating merge request:', error);
     } finally {
