@@ -1,14 +1,8 @@
 import { Request, Response, Router } from 'express';
 import { logger } from '@/server/Logger.js';
+import { Route } from '@/server/types.js';
 
 import type { RouterMethods, Middleware, Handler } from '@/server/types.js';
-
-export interface Route {
-  path: string;
-  method: string;
-  handler: (req: Request, res: Response) => void;
-  middlewares: Array<Middleware>;
-}
 
 class Controller {
   name: string;

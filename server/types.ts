@@ -14,6 +14,14 @@ export interface RouterMethods {
   unlock: string;
 }
 
+export interface Route {
+  path: string;
+  method?: string;
+  controller?: any;
+  handler?: (req: Request, res: Response) => void;
+  middlewares: Array<Middleware>;
+}
+
 export type Handler = (req: Request, res: Response) => void;
 
 export type Middleware = (req: Request, res: Response, next: () => void) => void;
