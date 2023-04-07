@@ -1,0 +1,129 @@
+import os from 'os';
+import express, { Request, Response, NextFunction } from 'express';
+import { Server as HttpServer } from 'http';
+import cors from 'cors';
+
+//Runtime imports for the server
+import { logger } from '@/server/Logger.js';
+import { config } from '@/server/Config.js';
+import { Router } from '@/server/Router.js';
+import { Controller } from '@/server/Controllers.js';
+
+class Server {
+  #app = express();
+
+  #host;
+
+  #port;
+
+  constructor() {
+    // Log server start
+    logger.info('[SERVER] App starting...');
+
+    // Set the host and port
+    this.#host = config.HOST ?? 'localhost';
+    this.#port = config.PORT ? parseInt(config.PORT, 10) : 3000;
+
+    // Set the Express app to allow proxy's
+    this.#app.enable('trust proxy');
+
+    // Disable powered by header for security reasons
+    this.#app.disable('x-powered-by');
+
+    // Expose a health check
+    this.#app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.originalUrl === '/health') {
+        res.json({
+          status: 'UP',
+          host: os.hostname(),
+          load: process.cpuUsage(),
+          mem: process.memoryUsage(),
+          uptime: process.uptime(),
+        });
+        return;
+      }
+      next();
+    });
+  }
+
+  run(): HttpServer {
+    return this.#app.listen(this.#port, this.#host, () => {
+      logger.info(
+        `[SERVER] Service started with success! App running at: ${this.#host}:${this.#port}`,
+      );
+    });
+  }
+
+  loadMiddlewares(middlewares: Array<any>) {
+    middlewares.forEach((mw) => {
+      this.#app.use(mw);
+    });
+
+    logger.info(`[SERVER] Loaded ${middlewares.length} global middleware(s)`);
+  }
+
+  loadRouters(routers: Array<Router>): void {
+    routers.forEach((router) => {
+      if (router instanceof Router) {
+        const routes = router.routes;
+
+        if (routes.length === 0) {
+          logger.warn(`[ROUTER] ${router.name} is initialized without routes!`);
+        }
+
+        routes.forEach((route: any) => {
+          if (route.controller instanceof Controller) {
+            route.middlewares.forEach((middleware: any) => {
+              this.#app.use(route.path, middleware);
+            });
+
+            this.#app.use(route.path, route.controller.getRouter(router.name));
+          } else {
+            console.error('Error at line:', route);
+            throw new Error(`Class is not an instance of 'Controller'!`);
+          }
+        });
+
+        logger.info(`[SERVER] Loaded ${routes.length} router(s)`);
+      } else {
+        console.error('Error at line:', router);
+        throw new Error(`Class is not an instance of 'Router'!`);
+      }
+    });
+  }
+
+  includeDefaultBodyParsers() {
+    this.#app.use(express.json());
+    this.#app.use(express.text());
+    this.#app.use(express.urlencoded({ extended: false }));
+
+    logger.info(`[SERVER] Loaded default body parsers (json, text, urlencoded and multer)`);
+  }
+
+  includeDefaultCorsHeaders(origin: string | RegExp) {
+    this.#app.use(
+      cors({
+        origin,
+      }),
+    );
+
+    logger.info(`[SERVER] Loaded default CORS headers`);
+  }
+
+  includeDefaultCompression() {
+    const compression = require('compression');
+
+    this.#app.use(
+      compression({
+        threshold: 0,
+      }),
+    );
+
+    logger.info(`[SERVER] Loaded default compression (deflate, gzip)`);
+    logger.warn(
+      `[SERVER] !!! Please note: We recommend you to disable compression on production environments. Loadbalancers and reverse proxies are 9/10 times faster at doing this job... !!!`,
+    );
+  }
+}
+
+export { Server };
