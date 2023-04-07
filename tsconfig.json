@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "module": "ES2020",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
-    "module": "Node16",
-    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "allowJs": true,
     "baseUrl": ".",
@@ -11,11 +12,12 @@
       "@/server/*": ["server/*"],
       "@/util/*": ["src/util/*"],
       "@/types/*": ["src/types/*"],
-      "@/controllers/*": ["src/controllers/*"]
+      "@/controllers/*": ["src/controllers/*"],
+      "@/helpers/*": ["src/helpers/*"],
+      "@/services/*": ["src/services/*"]
     },
     "checkJs": true,
 
-    /* EMIT RULES */
     "outDir": "./dist",
     "noEmit": true,
     "declaration": true,
@@ -23,7 +25,6 @@
     "sourceMap": true,
     "removeComments": true,
 
-    /* TYPE CHECKING RULES */
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -35,7 +36,6 @@
 
     /* OTHER OPTIONS */
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "useDefineForClassFields": true
