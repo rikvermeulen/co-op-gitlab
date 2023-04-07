@@ -16,16 +16,16 @@ async function validateMergeRequest(id: number, iid: number): Promise<void> {
 
     // Process each change
     await asyncForEach(changes, async (change: GitLabChanges) => {
-      const isValid = await checkFileFormat(change.new_path);
+      const language = await checkFileFormat(change.new_path);
 
-      if (change.deleted_file || !isValid) {
+      if (change.deleted_file || !language) {
         logger.info(
           `File is deleted or does not meet the requirements for feedback: ${change.new_path}`,
         );
         return;
       }
 
-      await handleFeedback(change, id, iid);
+      await handleFeedback(change, id, iid, language);
     });
 
     logger.info('Merge request validated');
@@ -34,16 +34,20 @@ async function validateMergeRequest(id: number, iid: number): Promise<void> {
   }
 }
 
-async function handleFeedback(change: GitLabChanges, projectId: number, mergeRequestId: number) {
+async function handleFeedback(
+  change: GitLabChanges,
+  projectId: number,
+  mergeRequestId: number,
+  language: string,
+) {
   try {
     const lineNumber = change.diff.match(/\n/g)?.length || 0;
 
     const basePrompt = `Please provide a review and feedback on the following code snippet, with a focus on the added lines (indicated by '+') and their line numbers. Suggest any improvements that can be made to the code in terms of readability, efficiency, or best practices and check on possible errors and data checking. Please do not provide feedback on missing explanations or comments in the code. Providing the updated code snippet within a markdown collapsible section titled "Click here to expand to see the snippet." \n Language: {language}\n Code snippet:\n\n{changes}\n\n`;
-
     const parameters: Parameter[] = [
       {
         key: 'language',
-        value: change.new_path.split('.').pop()?.toString() || 'unknown',
+        value: language,
       },
       {
         key: 'changes',
