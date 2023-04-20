@@ -6,6 +6,8 @@ import { createComment } from '@/util/gitlab/createComment';
 import { type Parameter, createGPTPrompt } from '../createGPTPrompt';
 import { logger } from '@/server/Logger';
 import glossary from '@/util/glossary';
+import { config } from '@/server/Config';
+import type { AvailableChatModels } from '@/services/gpt';
 
 /**
  * Handles feedback for a GitLab Merge Request
@@ -65,6 +67,7 @@ async function handleMergeRequestFeedback(
 async function getFeedback(change: GitLabChanges, language: string): Promise<string | undefined> {
   try {
     const basePrompt = glossary.prompt_gpt;
+    const model = config.OPENAI_MODEL as AvailableChatModels;
     const parameters: Parameter[] = [
       {
         key: 'language',
@@ -78,7 +81,7 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
 
     const prompt: string = createGPTPrompt(basePrompt, parameters);
 
-    const feedback: string = await new GPT(prompt, 'gpt-3.5-turbo').connect();
+    const feedback: string = await new GPT(prompt, model).connect();
 
     return feedback;
   } catch (error) {
