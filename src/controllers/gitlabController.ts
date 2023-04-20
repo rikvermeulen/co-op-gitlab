@@ -45,31 +45,31 @@ async function handleMergeRequestEvent(payload: GitlabEvent) {
 
   if (!id || !iid) throw new Error('Invalid project ID or merge request ID');
 
-  if (action === 'open' && state === 'opened' && !work_in_progress) {
-    try {
-      const text = createSlackMessage({
-        id,
-        name,
-        title,
-        user,
-        description,
-        url,
-        source_branch,
-        target_branch,
-      });
-      await slack.sendMessage(text);
-      logger.info('Slack message sent');
-    } catch (error) {
-      logger.error('Error sending message to Slack:', error);
-    }
-    try {
-      await handleMergeRequestFeedback(id, iid);
-    } catch (error) {
-      logger.error('Error validating merge request:', error);
-    } finally {
-      finalizeMergeRequest(id);
-    }
+  // if (action === 'open' && state === 'opened' && !work_in_progress) {
+  try {
+    const text = createSlackMessage({
+      id,
+      name,
+      title,
+      user,
+      description,
+      url,
+      source_branch,
+      target_branch,
+    });
+    await slack.sendMessage(text);
+    logger.info('Slack message sent');
+  } catch (error) {
+    logger.error('Error sending message to Slack:', error);
   }
+  try {
+    await handleMergeRequestFeedback(id, iid);
+  } catch (error) {
+    logger.error('Error validating merge request:', error);
+  } finally {
+    finalizeMergeRequest(id);
+  }
+  // }
 }
 
 async function finalizeMergeRequest(id: number): Promise<void> {
