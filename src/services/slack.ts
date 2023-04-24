@@ -20,6 +20,8 @@ class Slack {
         channel: this.channel,
         ...text,
         ...(ts && { thread_ts: ts }),
+        unfurl_links: false,
+        unfurl_media: false,
       });
 
       logger.status('Slack message sent to', result.channel);
