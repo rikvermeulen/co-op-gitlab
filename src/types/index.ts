@@ -41,14 +41,3 @@ export interface GitlabCommentPayload {
   body: string;
   position: GitlabCommentPosition;
 }
-
-export interface slackMergeRequestMessage {
-  id: number;
-  name: string;
-  title: string;
-  user: string;
-  description: string;
-  url: string;
-  source_branch: string;
-  target_branch: string;
-}
