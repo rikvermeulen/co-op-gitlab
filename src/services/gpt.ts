@@ -5,7 +5,7 @@ import { config } from '@/server/Config';
 const { OPENAI_KEY, OPENAI_ORG } = config;
 
 export const chatModels = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0301'] as const;
-export type AvailableChatModels = typeof chatModels[number];
+export type AvailableChatModels = (typeof chatModels)[number];
 
 class GPT {
   private prompt: string;
@@ -17,7 +17,7 @@ class GPT {
     this.prompt = prompt;
     this.model = model;
     this.tokens = 2048;
-    this.temperature = 0.5;
+    this.temperature = 0.2;
   }
 
   async connect(): Promise<any> {
