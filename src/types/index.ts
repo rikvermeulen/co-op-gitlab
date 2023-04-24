@@ -25,6 +25,7 @@ export type GitlabEvent = {
     work_in_progress: boolean;
     description: string;
   };
+  labels: { title: string }[];
 };
 
 export interface GitlabCommentPosition {

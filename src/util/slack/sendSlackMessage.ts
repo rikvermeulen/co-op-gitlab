@@ -24,8 +24,10 @@ function sendSlackMessage(payload: GitlabEvent) {
     blocks: [],
   };
 
+  const labels = payload.labels.map((label) => label.title).join(', ');
+
   // Define the text for the merge request information.
-  const text = `*New Merge Request Created for ${name}*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
+  const text = `*New Merge Request Created for ${name}*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n*Labels:* ${labels}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
 
   // Add the formatted text to the message blocks using the addTextWithMarkdown util function.
   addTextWithMarkdown(message, text);
