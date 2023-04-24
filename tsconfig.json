@@ -14,7 +14,8 @@
       "@/types/*": ["src/types/*"],
       "@/controllers/*": ["src/controllers/*"],
       "@/helpers/*": ["src/helpers/*"],
-      "@/services/*": ["src/services/*"]
+      "@/services/*": ["src/services/*"],
+      "@/middlewares/*": ["src/middlewares/*"]
     },
     "checkJs": true,
 

@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import { Controller } from '@/server/Controllers';
 import { logger } from '@/server/Logger';
 
+import { validateGitlabToken } from '@/middlewares/validateGitlabToken';
+
 import { sendSlackMessage } from '@/util/slack/sendSlackMessage';
 import { sendSlackThread } from '@/util/slack/sendSlackThread';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
@@ -12,7 +14,7 @@ import type { GitlabEvent } from '@/types/index';
 
 const controller = new Controller('gitlabController');
 
-controller.post('/', [], async (req: Request, res: Response) => {
+controller.post('/', [validateGitlabToken], async (req: Request, res: Response) => {
   const event = req.header('X-Gitlab-Event');
   const payload = req.body;
   try {
