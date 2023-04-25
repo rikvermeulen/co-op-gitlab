@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 
 import { config } from '@/server/Config';
 
-const gitlabSecretToken = config.GITLAB_SECRET_TOKEN;
+const gitlabSecretToken = config.GITLAB_SECRET_TOKEN as string;
 
 function validateGitlabToken(req: Request, res: Response, next: NextFunction) {
   const gitlabToken = req.header('X-Gitlab-Token');

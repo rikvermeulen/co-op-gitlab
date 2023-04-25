@@ -37,9 +37,9 @@
     "@types/cors": "^2.8.13",
     "@types/eslint": "^8.37.0",
     "@types/express": "^4.17.17",
-    "@types/node": "^18.15.11",
-    "eslint": "^8.37.0",
+    "@types/node": "^18.16.0",
+    "eslint": "^8.39.0",
     "tsup": "^6.7.0",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   }
 }
