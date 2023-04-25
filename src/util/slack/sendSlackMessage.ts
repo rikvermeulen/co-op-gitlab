@@ -1,7 +1,7 @@
 import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
 import { Slack } from '@/services/slack';
 
-import type { GitlabEvent } from '@/types/index';
+import type { GitlabMergeEvent } from '@/types/index';
 
 /**
  * Creates a Slack message for a new merge request.
@@ -12,7 +12,7 @@ import type { GitlabEvent } from '@/types/index';
 
 const slack = new Slack();
 
-function sendSlackMessage(payload: GitlabEvent) {
+function sendSlackMessage(payload: GitlabMergeEvent) {
   const {
     project: { id, name },
     object_attributes: { title, url, source_branch, target_branch },

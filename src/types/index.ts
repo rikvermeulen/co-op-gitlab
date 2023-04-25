@@ -11,7 +11,7 @@ export interface GitLabChanges {
   deleted_file: boolean;
 }
 
-export type GitlabEvent = {
+export type GitlabMergeEvent = {
   user: { name: string };
   project: { id: number; name: string };
   object_attributes: {
@@ -26,6 +26,21 @@ export type GitlabEvent = {
     description: string;
   };
   labels: { title: string }[];
+};
+
+export type GitlabNoteEvent = {
+  object_attributes: {
+    noteable_type: string;
+    note: string;
+    id: number;
+  };
+  merge_request: {
+    iid: number;
+    source_project_id: number;
+  };
+  user: {
+    username: string;
+  };
 };
 
 export interface GitlabCommentPosition {

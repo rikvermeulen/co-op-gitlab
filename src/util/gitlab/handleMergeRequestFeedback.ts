@@ -2,7 +2,7 @@ import { GPT, GitLab } from '@/services/index';
 import { GitLabChanges } from '@/types/index';
 import { asyncForEach } from '@/helpers/asyncForEach';
 import { checkFileFormat } from '@/util/checkFileFormat';
-import { createComment } from '@/util/gitlab/createComment';
+import { CommentManager } from '@/util/gitlab/CommentManager';
 import { type Parameter, createGPTPrompt } from '../createGPTPrompt';
 import { logger } from '@/server/Logger';
 import glossary from '@/util/glossary';
@@ -21,6 +21,7 @@ async function handleMergeRequestFeedback(
   mergeRequestId: number,
 ): Promise<void> {
   const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs`;
+  const comment = new CommentManager();
 
   try {
     // Get all changes in the merge request
@@ -39,7 +40,7 @@ async function handleMergeRequestFeedback(
       const feedback: string | undefined = await getFeedback(change, language);
 
       if (feedback) {
-        await createComment(
+        await comment.create(
           projectId,
           mergeRequestId,
           change.old_path,
@@ -66,7 +67,9 @@ async function handleMergeRequestFeedback(
 
 async function getFeedback(change: GitLabChanges, language: string): Promise<string | undefined> {
   try {
-    const basePrompt = glossary.prompt_gpt;
+    const userPrompt = glossary.prompt_gpt;
+    const systemPrompt = glossary.system_prompt_gpt;
+
     const model = config.OPENAI_MODEL as AvailableChatModels;
     const parameters: Parameter[] = [
       {
@@ -79,9 +82,10 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
       },
     ];
 
-    const prompt: string = createGPTPrompt(basePrompt, parameters);
+    const system: string = createGPTPrompt(systemPrompt, parameters);
+    const user: string = createGPTPrompt(userPrompt, parameters);
 
-    const feedback: string = await new GPT(prompt, model).connect();
+    const feedback: string = await new GPT(user, system, model).connect();
 
     return feedback;
   } catch (error) {
