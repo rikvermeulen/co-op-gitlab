@@ -29,6 +29,7 @@ async function handleMergeRequestFeedback(
 
     // Process each change
     await asyncForEach(changes, async (change: GitLabChanges) => {
+      console.log(change);
       if (!change.diff) return;
 
       const language: string | false = await checkFileFormat(change.new_path);
@@ -40,6 +41,8 @@ async function handleMergeRequestFeedback(
       }
 
       const feedback: string | undefined = await getFeedback(change, language);
+
+      console.log(feedback);
 
       if (feedback) {
         await comment.create(
