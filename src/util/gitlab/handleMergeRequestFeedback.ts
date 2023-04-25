@@ -42,7 +42,7 @@ async function handleMergeRequestFeedback(
 
       const feedback: string | undefined = await getFeedback(change, language);
 
-      console.log(feedback);
+      console.log(lineNumber - 2);
 
       if (feedback) {
         await comment.create(
