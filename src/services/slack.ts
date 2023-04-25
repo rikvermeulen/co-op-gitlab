@@ -26,7 +26,7 @@ class Slack {
 
       logger.status('Slack message sent to', result.channel);
     } catch (error) {
-      logger.error('Error sending message to Slack:', error);
+      throw new Error(`Error sending message to Slack: ${error}`);
     }
   }
 
@@ -41,7 +41,7 @@ class Slack {
 
       logger.status('Slack message sent to', result.channel);
     } catch (error) {
-      logger.error('Error sending message to Slack:', error);
+      throw new Error(`Error sending reaction to Slack: ${error}`);
     }
   }
 
@@ -56,8 +56,7 @@ class Slack {
       const messages = allMessages.messages || [];
 
       if (messages.length === 0) {
-        logger.status('No messages to delete');
-        return;
+        throw new Error(`No messages to delete`);
       }
 
       logger.status(`Deleting ${messages.length} messages...`);
@@ -73,7 +72,7 @@ class Slack {
 
       logger.success('All messages deleted');
     } catch (error) {
-      logger.error(`Error deleting messages: ${error}`);
+      throw new Error(`Error deleting message to Slack: ${error}`);
     }
   }
 }

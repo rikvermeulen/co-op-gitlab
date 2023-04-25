@@ -14,15 +14,19 @@ const web = new WebClient(SLACK_BOT_TOKEN);
  * @throws An error if the message is not found.
  */
 async function getTimeStampMessage(messageId: number, limit = 30): Promise<string> {
-  const channel = SLACK_CHANNEL as string;
+  try {
+    const channel = SLACK_CHANNEL as string;
 
-  const { messages } = await web.conversations.history({ channel, limit });
+    const { messages } = await web.conversations.history({ channel, limit });
 
-  const message = messages?.find((m) => m.text === messageId.toString());
+    const message = messages?.find((m) => m.text === messageId.toString());
 
-  if (!message?.ts) throw new Error(`Message not found in channel ${channel}`);
+    if (!message?.ts) throw new Error(`Message not found in channel ${channel}`);
 
-  return message.ts;
+    return message.ts;
+  } catch (error) {
+    throw new Error(`Error getting timestamp for message ${messageId}: ${error}`);
+  }
 }
 
 export { getTimeStampMessage };

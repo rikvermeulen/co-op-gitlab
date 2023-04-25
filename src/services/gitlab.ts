@@ -37,8 +37,7 @@ class GitLab {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error connecting to GitLab:', error);
-      return null;
+      throw new Error(`Error connecting to GitLab: ${error}`);
     }
   }
 }

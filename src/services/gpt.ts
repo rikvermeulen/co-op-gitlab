@@ -29,7 +29,7 @@ class GPT {
     const openai = new OpenAIApi(configuration);
 
     if (!openai) {
-      return console.error('No configuration found');
+      throw new Error(`No configuration found`);
     }
 
     try {
@@ -41,12 +41,12 @@ class GPT {
       });
 
       if (!chatResponse.data.choices[0]) {
-        return console.error('No response from OpenAI');
+        throw new Error(`No response from OpenAI`);
       }
 
       return chatResponse.data.choices[0].message?.content;
     } catch (error) {
-      return console.log(error);
+      throw new Error(`Error sending message to Slack: ${error}`);
     }
   }
 }

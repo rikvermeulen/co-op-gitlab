@@ -46,7 +46,7 @@ async function createComment(
 
     logger.info('Comment added to:', result.id);
   } catch (error) {
-    logger.error('Error adding comment to merge request:', error);
+    throw new Error(`Error adding comment to merge request: ${error}`);
   }
 }
 

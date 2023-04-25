@@ -1,4 +1,4 @@
-import { getTimeStampMessage } from '@/util/slack/getTimeStamp';
+import { getTimeStampMessage } from '@/util/slack/getTimeStampMessage';
 import { Slack } from '@/services/slack';
 
 const slack = new Slack();
@@ -12,7 +12,7 @@ async function sendSlackThread(id: number, text: string, emoji?: string): Promis
       await slack.sendReaction(emoji, timestamp);
     }
   } catch (error) {
-    console.error(`Failed to finalize merge request with ID ${id}:`, error);
+    throw new Error(`Failed to add message to slack thread ${id}: ${error}`);
   }
 }
 

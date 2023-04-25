@@ -24,16 +24,20 @@ function sendSlackMessage(payload: GitlabEvent) {
     blocks: [],
   };
 
-  const labels = payload.labels.map((label) => label.title).join(', ');
+  try {
+    const labels = payload.labels.map((label) => label.title).join(', ');
 
-  // Define the text for the merge request information.
-  const text = `*New Merge Request Created for ${name}*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n*Labels:* ${labels}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
+    // Define the text for the merge request information.
+    const text = `*New Merge Request Created for ${name}*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n*Labels:* ${labels}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
 
-  // Add the formatted text to the message blocks using the addTextWithMarkdown util function.
-  addTextWithMarkdown(message, text);
+    // Add the formatted text to the message blocks using the addTextWithMarkdown util function.
+    addTextWithMarkdown(message, text);
 
-  // Return the created Slack message.
-  slack.sendMessage(message);
+    // Return the created Slack message.
+    slack.sendMessage(message);
+  } catch (error) {
+    throw new Error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
+  }
 }
 
 export { sendSlackMessage };
