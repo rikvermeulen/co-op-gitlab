@@ -1,4 +1,4 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
 import { logger } from '@/server/Logger.js';
 import { Route } from '@/server/types.js';
 

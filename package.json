@@ -17,7 +17,12 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "start": "node dist/server.js",
-    "check-updates": "ncu -u && npm i"
+    "check-updates": "ncu -u && npm i",
+    "test": "vitest --passWithNoTests",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "lint": "tsc --noEmit && prettier --check .",
+    "lint:fix": "tsc --noEmit && prettier --write ."
   },
   "author": "",
   "license": "ISC",
@@ -39,7 +44,9 @@
     "@types/express": "^4.17.17",
     "@types/node": "^18.16.0",
     "eslint": "^8.39.0",
+    "prettier": "^2.8.8",
     "tsup": "^6.7.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^0.30.1"
   }
 }

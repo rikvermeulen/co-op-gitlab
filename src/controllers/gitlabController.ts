@@ -42,7 +42,7 @@ async function handleMergeRequestEvent(payload: GitlabEvent) {
     }
 
     if (action === 'update') {
-      await handleMergeRequestUpdated(id);
+      await handleMergeRequestUpdated();
     }
   }
 
@@ -61,7 +61,7 @@ async function handleMergeRequestOpen(id: number, iid: number) {
   }
 }
 
-async function handleMergeRequestUpdated(id: number) {
+async function handleMergeRequestUpdated() {
   try {
   } catch {}
 }

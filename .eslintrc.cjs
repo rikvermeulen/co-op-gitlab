@@ -16,7 +16,7 @@ const config = {
     'plugin:import/errors',
     'plugin:import/warnings',
   ],
-  ignorePatterns: ['out/*', 'node_modules/*', '.eslintrc.js', 'next.config.js'],
+  ignorePatterns: ['node_modules/*', '.eslintrc.js', 'dist/*'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
