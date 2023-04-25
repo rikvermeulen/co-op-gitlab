@@ -2,20 +2,20 @@
 <p align="center">
   Automate code reviews and feedback for GitLab Merge Requests using OpenAI GPT-3/4
 </p>
-header
 
 <p align="center">
-  Get started with Code Reviewer by following the instructions in the <a href="#getting-started"><strong>Getting Started</strong></a> section
-</p>
-<p align="center">
-  <a href="#introduction"><strong>Introduction</strong></a> ·
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#getting-started"><strong>Getting Started</strong></a> ·
-  <a href="#usage"><strong>Usage</strong></a> ·
-  <a href="#author"><strong>Author</strong></a>
+  Get started with Code Reviewer by following the instructions in the <a href="#-getting-started"><strong>Getting Started</strong></a> section
 </p>
 
-## Introduction
+<p align="center">
+  <a href="#-introduction"><strong>Introduction</strong></a> ·
+  <a href="#-features"><strong>Features</strong></a> ·
+  <a href="#-getting-started"><strong>Getting Started</strong></a> ·
+  <a href="#-usage"><strong>Usage</strong></a> ·
+  <a href="#-author"><strong>Author</strong></a>
+</p>
+
+## 👋 Introduction
 
 Code Reviewer is a tool that integrates with GitLab and OpenAI GPT-3/4 to automatically review and provide feedback on Merge Requests. It validates code snippets, suggests improvements, and ensures that best practices are followed.
 
@@ -71,7 +71,7 @@ npm run build
 npm run start
 ```
 
-## Usage
+## 💻 Usage
 
 1. In your GitLab project, create a webhook that triggers on Merge Request events.
 
