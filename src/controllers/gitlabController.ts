@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 
 import { Controller } from '@/server/Controllers';
 import { logger } from '@/server/Logger';
-import { GitLab } from '@/services/gitlab';
 
 import { validateGitlabToken } from '@/middlewares/validateGitlabToken';
 

@@ -29,19 +29,13 @@ async function handleMergeRequestFeedback(
 
     // Process each change
     await asyncForEach(changes, async (change: GitLabChanges) => {
-      const maxTokens = 2047;
+      if (!change.diff) return;
 
       const language: string | false = await checkFileFormat(change.new_path);
       const lineNumber: number = change.diff.match(/\n/g)?.length || 0;
 
       if (change.deleted_file || !language) {
         logger.info(`Ignored: ${change.new_path}`);
-        return;
-      }
-
-      const tokenEstimationFactor = 1.2;
-      const estimatedTokens = (change.diff.match(/\s+/g)?.length ?? 0) * tokenEstimationFactor;
-      if (estimatedTokens > maxTokens) {
         return;
       }
 
