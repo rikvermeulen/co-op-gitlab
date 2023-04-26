@@ -61,7 +61,7 @@ async function getLineNumber(change: GitLabChanges, sourceBranch: string, projec
   try {
     const fileContentUrl = `/projects/${projectId}/repository/files/${encodeURIComponent(
       new_path,
-    )}?ref=${sourceBranch}`;
+    )}?ref=${encodeURIComponent(sourceBranch)}`;
     console.log('url', fileContentUrl);
     const fileContentResponse = await new GitLab('GET', fileContentUrl).connect();
     console.log('res', fileContentResponse);
