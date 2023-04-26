@@ -6,8 +6,9 @@ const config = {
     '@typescript-eslint',
     'unused-imports',
     'tailwindcss',
-    'simple-import-sort',
     'prettier',
+    'import',
+    'simple-import-sort',
   ],
   extends: [
     'airbnb-typescript',
@@ -32,6 +33,8 @@ const config = {
             endOfLine: 'auto',
           },
         ],
+        'simple-import-sort/imports': 'error',
+        'simple-import-sort/exports': 'error',
         '@next/next/no-html-link-for-pages': ['off'],
       },
       settings: {
