@@ -46,6 +46,7 @@ class CommentManager {
 
       logger.info('Comment added to:', result.id);
     } catch (error) {
+      logger.error(`Error adding comment to merge request: ${error}`);
       throw new Error(`Error adding comment to merge request: ${error}`);
     }
   }
@@ -75,6 +76,7 @@ class CommentManager {
       const result = await new GitLab('POST', `${url}/notes`, payload).connect();
       logger.info('Comment added to:', result.id);
     } catch (error) {
+      logger.error(`Error adding reply to merge request: ${error}`);
       throw new Error(`Error adding reply to merge request: ${error}`);
     }
   }

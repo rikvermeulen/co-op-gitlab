@@ -58,6 +58,7 @@ async function handleMergeRequestFeedback(
 
     logger.info('Merge request validated');
   } catch (error) {
+    logger.error(`Error handling merge request feedback: ${error}`);
     throw new Error(`Error handling merge request feedback: ${error}`);
   }
 }
@@ -94,6 +95,7 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
 
     return feedback;
   } catch (error) {
+    logger.error(`Error generating feedback for change ${change.new_path}: ${error}`);
     throw new Error(`Error generating feedback for change ${change.new_path}: ${error}`);
   }
 }
