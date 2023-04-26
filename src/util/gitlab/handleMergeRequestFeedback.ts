@@ -32,7 +32,9 @@ async function handleMergeRequestFeedback(
       if (!diff) return;
 
       const language: string | false = await checkFileFormat(new_path);
+      console.log(language);
       const lineNumber: number | undefined = await getLineNumber(change, sourceBranch, projectId);
+      console.log(lineNumber);
 
       if (deleted_file || !language || !lineNumber) {
         logger.info(`Ignored: ${new_path}`);
@@ -56,22 +58,27 @@ async function handleMergeRequestFeedback(
 async function getLineNumber(change: GitLabChanges, sourceBranch: string, projectId: number) {
   const { diff, new_path } = change;
 
-  const fileContentUrl = `/projects/${projectId}/repository/files/${encodeURIComponent(
-    new_path,
-  )}?ref=${sourceBranch}`;
-  const fileContentResponse = await new GitLab('GET', fileContentUrl).connect();
-  const fileContent = Buffer.from(fileContentResponse.content, 'base64').toString('utf-8');
+  try {
+    const fileContentUrl = `/projects/${projectId}/repository/files/${encodeURIComponent(
+      new_path,
+    )}?ref=${sourceBranch}`;
+    const fileContentResponse = await new GitLab('GET', fileContentUrl).connect();
+    const fileContent = Buffer.from(fileContentResponse.content, 'base64').toString('utf-8');
 
-  if (!fileContent) return;
+    if (!fileContent) return;
 
-  const newCode = diff
-    .split('\n')
-    .filter((line) => line.startsWith('+'))
-    .join('\n')
-    .substring(1);
-  const lineNumbers = fileContent.split(newCode)?.[0]?.split('\n').length ?? 0;
+    const newCode = diff
+      .split('\n')
+      .filter((line) => line.startsWith('+'))
+      .join('\n')
+      .substring(1);
+    const lineNumbers = fileContent.split(newCode)?.[0]?.split('\n').length ?? 0;
 
-  return lineNumbers;
+    return lineNumbers;
+  } catch (error) {
+    logger.error(`Error getting line number: ${error}`);
+    throw new Error(`Error getting line number: ${error}`);
+  }
 }
 
 export { handleMergeRequestFeedback };

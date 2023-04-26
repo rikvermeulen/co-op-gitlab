@@ -56,8 +56,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   }
 
   if (state === 'merged') {
-    await handleMergeRequestOpen(id, iid, source_branch);
-    // await handleMergeRequestMerged(id);
+    await handleMergeRequestMerged(id);
   }
 }
 
