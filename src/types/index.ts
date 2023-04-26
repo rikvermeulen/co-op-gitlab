@@ -37,6 +37,7 @@ export type GitlabNoteEvent = {
   merge_request: {
     iid: number;
     source_project_id: number;
+    source_branch: string;
   };
   user: {
     username: string;

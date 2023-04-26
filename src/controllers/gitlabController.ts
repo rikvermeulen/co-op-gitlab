@@ -36,7 +36,7 @@ controller.post('/', [validateGitlabToken], async (req: Request, res: Response) 
 async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   const {
     project: { id },
-    object_attributes: { state, action, iid, work_in_progress },
+    object_attributes: { state, action, iid, work_in_progress, source_branch },
   } = payload;
 
   if (!id || !iid) {
@@ -47,7 +47,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   if (state === 'opened' && !work_in_progress) {
     if (action === 'open') {
       sendSlackMessage(payload);
-      await handleMergeRequestOpen(id, iid);
+      await handleMergeRequestOpen(id, iid, source_branch);
     }
 
     if (action === 'update') {
@@ -63,7 +63,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
 async function handleNoteEvent(payload: GitlabNoteEvent) {
   const {
     object_attributes: { noteable_type, note, id },
-    merge_request: { iid, source_project_id },
+    merge_request: { iid, source_project_id, source_branch },
     user: { username },
   } = payload;
 
@@ -75,7 +75,7 @@ async function handleNoteEvent(payload: GitlabNoteEvent) {
   if (note && note.includes(command)) {
     try {
       await comment.reply(source_project_id, iid, id, username);
-      await handleMergeRequestFeedback(source_project_id, iid);
+      await handleMergeRequestFeedback(source_project_id, iid, source_branch);
     } catch (error) {
       logger.error('Error validating merge request:', error);
     }
@@ -84,9 +84,9 @@ async function handleNoteEvent(payload: GitlabNoteEvent) {
   return;
 }
 
-async function handleMergeRequestOpen(id: number, iid: number) {
+async function handleMergeRequestOpen(id: number, iid: number, source_branch: string) {
   try {
-    await handleMergeRequestFeedback(id, iid);
+    await handleMergeRequestFeedback(id, iid, source_branch);
   } catch (error) {
     logger.error('Error validating merge request:', error);
   } finally {
