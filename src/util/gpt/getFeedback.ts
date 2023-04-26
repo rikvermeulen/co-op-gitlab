@@ -1,10 +1,10 @@
-import { GitLabChanges } from '@/types/index';
-import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
-import { logger } from '@/server/Logger';
-import glossary from '@/util/glossary';
 import { config } from '@/server/Config';
+import { logger } from '@/server/Logger';
 import { GPT } from '@/services/index';
+import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
+import glossary from '@/util/glossary';
 import type { AvailableChatModels } from '@/services/gpt';
+import type { GitLabChanges } from '@/types/index';
 
 /**
  * Generates feedback for a given GitLab change and language

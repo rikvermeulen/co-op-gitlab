@@ -1,6 +1,6 @@
-import { getTimeStampMessage } from '@/util/slack/getTimeStampMessage';
 import { Slack } from '@/services/slack';
 import { logger } from '@/server/Logger';
+import { getTimeStampMessage } from '@/util/slack/getTimeStampMessage';
 
 const slack = new Slack();
 

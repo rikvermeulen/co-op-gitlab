@@ -1,10 +1,11 @@
+import { logger } from '@/server/Logger';
 import { GitLab } from '@/services/index';
-import { GitLabChanges } from '@/types/index';
 import { asyncForEach } from '@/helpers/asyncForEach';
 import { checkFileFormat } from '@/util/checkFileFormat';
 import { CommentManager } from '@/util/gitlab/CommentManager';
-import { logger } from '@/server/Logger';
 import { getFeedback } from '@/util/gpt/getFeedback';
+
+import type { GitLabChanges } from '@/types/index';
 
 /**
  * Handles feedback for a GitLab Merge Request

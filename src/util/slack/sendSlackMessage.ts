@@ -1,6 +1,6 @@
-import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
 import { Slack } from '@/services/slack';
 import { logger } from '@/server/Logger';
+import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
 
 import type { GitlabMergeEvent } from '@/types/index';
 

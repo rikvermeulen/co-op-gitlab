@@ -1,6 +1,6 @@
-import type { GitlabCommentPayload } from '@/types/index.js';
 import { logger } from '@/server/Logger';
 import { GitLab } from '@/services/gitlab';
+import type { GitlabCommentPayload } from '@/types/index.js';
 
 class CommentManager {
   /**
