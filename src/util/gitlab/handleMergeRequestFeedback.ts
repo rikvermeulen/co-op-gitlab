@@ -38,7 +38,11 @@ async function handleMergeRequestFeedback(
           return;
         }
 
-        const lineNumber: number | undefined = await getLineNumber(change, sourceBranch, projectId);
+        const lineNumber: number | undefined = await getLastChangedLine(
+          change,
+          sourceBranch,
+          projectId,
+        );
 
         if (!lineNumber) return;
 
@@ -57,7 +61,7 @@ async function handleMergeRequestFeedback(
   }
 }
 
-async function getLineNumber(change: GitLabChanges, sourceBranch: string, projectId: number) {
+async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, projectId: number) {
   const { diff, new_path } = change;
 
   try {
