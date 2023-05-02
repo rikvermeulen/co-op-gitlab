@@ -32,7 +32,6 @@ async function handleMergeRequestFeedback(
       if (!diff) return;
 
       const language: string | false = await checkFileFormat(new_path);
-      console.log(language);
       const lineNumber: number | undefined = await getLineNumber(change, sourceBranch, projectId);
       console.log(lineNumber);
 
@@ -62,21 +61,31 @@ async function getLineNumber(change: GitLabChanges, sourceBranch: string, projec
     const fileContentUrl = `/projects/${projectId}/repository/files/${encodeURIComponent(
       new_path,
     )}?ref=${encodeURIComponent(sourceBranch)}`;
-    console.log('url', fileContentUrl);
     const fileContentResponse = await new GitLab('GET', fileContentUrl).connect();
-    console.log('res', fileContentResponse);
     const fileContent = Buffer.from(fileContentResponse.content, 'base64').toString('utf-8');
 
     if (!fileContent) return;
 
-    const newCode = diff
-      .split('\n')
-      .filter((line) => line.startsWith('+'))
-      .join('\n')
-      .substring(1);
-    const lineNumbers = fileContent.split(newCode)?.[0]?.split('\n').length ?? 0;
+    const diffLines = diff.split('\n');
+    let lineNumber = 0;
+    let lastChangedLine = 0;
 
-    return lineNumbers;
+    for (const line of diffLines) {
+      if (line.startsWith('+')) {
+        lastChangedLine = lineNumber;
+      } else if (line.startsWith('@@')) {
+        const match = line.match(/\+([0-9]+)/);
+        if (match) {
+          lineNumber = parseInt(match[1], 10) - 1;
+        }
+      }
+
+      if (!line.startsWith('-')) {
+        lineNumber++;
+      }
+    }
+
+    return lastChangedLine;
   } catch (error) {
     logger.error(`Error getting line number: ${error}`);
     throw new Error(`Error getting line number: ${error}`);
