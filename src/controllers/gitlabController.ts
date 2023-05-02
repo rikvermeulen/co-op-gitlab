@@ -73,6 +73,7 @@ async function handleNoteEvent(payload: GitlabNoteEvent) {
   if (noteable_type !== 'MergeRequest') return;
 
   if (note && note.includes(command)) {
+    console.log('note', note, payload);
     try {
       await comment.reply(source_project_id, iid, id, username);
       await handleMergeRequestFeedback(source_project_id, iid, source_branch);
