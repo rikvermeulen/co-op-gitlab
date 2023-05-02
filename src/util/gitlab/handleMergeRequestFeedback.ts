@@ -1,6 +1,5 @@
 import { logger } from '@/server/Logger';
 import { GitLab } from '@/services/index';
-import { asyncForEach } from '@/helpers/asyncForEach';
 import { checkFileFormat } from '@/util/checkFileFormat';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { getFeedback } from '@/util/gpt/getFeedback';
@@ -26,26 +25,30 @@ async function handleMergeRequestFeedback(
   try {
     const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-    await asyncForEach(changes, async (change: GitLabChanges) => {
-      const { diff, new_path, deleted_file, old_path } = change;
+    await Promise.all(
+      changes.map(async (change: GitLabChanges) => {
+        const { diff, new_path, deleted_file, old_path } = change;
 
-      if (!diff) return;
+        if (!diff) return;
 
-      const language: string | false = await checkFileFormat(new_path);
-      const lineNumber: number | undefined = await getLineNumber(change, sourceBranch, projectId);
-      console.log(lineNumber);
+        const language: string | false = await checkFileFormat(new_path);
 
-      if (deleted_file || !language || !lineNumber) {
-        logger.info(`Ignored: ${new_path}`);
-        return;
-      }
+        if (deleted_file || !language) {
+          logger.info(`Ignored: ${new_path}`);
+          return;
+        }
 
-      const feedback: string | undefined = await getFeedback(change, language);
+        const lineNumber: number | undefined = await getLineNumber(change, sourceBranch, projectId);
 
-      if (!feedback) return;
+        if (!lineNumber) return;
 
-      commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
-    });
+        const feedback: string | undefined = await getFeedback(change, language);
+
+        if (!feedback) return;
+
+        commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
+      }),
+    );
 
     logger.info('Merge request validated');
   } catch (error) {
@@ -75,7 +78,7 @@ async function getLineNumber(change: GitLabChanges, sourceBranch: string, projec
         lastChangedLine = lineNumber;
       } else if (line.startsWith('@@')) {
         const match = line.match(/\+([0-9]+)/);
-        if (match) {
+        if (match && match[1]) {
           lineNumber = parseInt(match[1], 10) - 1;
         }
       }
