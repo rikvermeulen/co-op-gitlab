@@ -1,7 +1,8 @@
+import { config } from '@/server/Config.js';
 import { Runtime } from '@/server/Runtime.js';
 import { Server } from '@/server/Server.js';
+
 import { router } from './routers/gitlab.js';
-import { config } from '@/server/Config.js';
 
 const { PORT, HOST } = config;
 

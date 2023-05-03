@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-
 import { config } from '@/server/Config';
 
 const gitlabSecretToken = config.GITLAB_SECRET_TOKEN as string;
