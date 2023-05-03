@@ -22,11 +22,6 @@ const config = {
       },
     },
   },
-  env: {
-    browser: false,
-    node: true,
-    es2021: true,
-  },
 };
 
 module.exports = config;
