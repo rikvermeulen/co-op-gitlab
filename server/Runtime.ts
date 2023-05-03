@@ -1,17 +1,17 @@
-import { logger } from '@/server/Logger.js';
+import { Logger } from '@/server/Logger.js';
 
 const Runtime = async (sandbox: () => void) => {
   // Catch unhandled promise rejections
   process.on('unhandledRejection', (err) => {
-    logger.error('[RUNTIME] Unhandled Rejection found!:');
-    logger.error(err);
+    Logger.error('[RUNTIME] Unhandled Rejection found!:');
+    Logger.error(err as string); // Log the error with an optional error code
     process.exit(1);
   });
 
   // Catch unhandled exceptions
   process.on('uncaughtException', (err) => {
-    logger.error('[RUNTIME] Uncaught Exception found!:');
-    logger.error(err);
+    Logger.error('[RUNTIME] Uncaught Exception found!:');
+    Logger.error(err);
     process.exit(1);
   });
 

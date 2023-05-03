@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api';
 import { config } from '@/server/Config';
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
 
 const { SLACK_BOT_TOKEN, SLACK_CHANNEL } = config;
 
@@ -26,8 +26,8 @@ async function getTimeStampMessage(messageId: number, limit = 30): Promise<strin
 
     return message.ts;
   } catch (error) {
-    logger.error(`Error getting timestamp for message ${messageId}: ${error}`);
-    throw new Error(`Error getting timestamp for message ${messageId}: ${error}`);
+    Logger.error(`Error getting timestamp for message ${messageId}: ${error}`);
+    return '';
   }
 }
 

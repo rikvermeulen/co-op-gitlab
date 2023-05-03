@@ -1,8 +1,6 @@
 import { Router } from 'express';
-import { logger } from '@/server/Logger.js';
-import { Route } from '@/server/types.js';
-
-import type { RouterMethods, Middleware, Handler } from '@/server/types.js';
+import { Logger } from '@/server/Logger.js';
+import { Route, type Handler, type Middleware, type RouterMethods } from '@/server/types.js';
 
 class Controller {
   name: string;
@@ -50,7 +48,7 @@ class Controller {
 
   getRouter(routerName: string): Router {
     if (this.routes.length === 0) {
-      logger.warn(`[CONTROLLER] ${routerName}/${this.name} is initialized without routes!`);
+      Logger.warn(`[CONTROLLER] ${routerName}/${this.name} is initialized without routes!`);
     }
 
     return this.router;

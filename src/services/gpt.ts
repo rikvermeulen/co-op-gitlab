@@ -1,7 +1,6 @@
 import { Configuration, OpenAIApi } from 'openai';
-
 import { config } from '@/server/Config';
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
 
 const { OPENAI_KEY, OPENAI_ORG } = config;
 
@@ -32,8 +31,7 @@ class GPT {
     const openai = new OpenAIApi(configuration);
 
     if (!openai) {
-      logger.error(`No configuration found`);
-      throw new Error(`No configuration found`);
+      return Logger.error(`No configuration found`);
     }
 
     try {
@@ -48,14 +46,12 @@ class GPT {
       });
 
       if (!chatResponse.data.choices[0]) {
-        logger.error(`No response from OpenAI`);
-        throw new Error(`No response from OpenAI`);
+        return Logger.error(`No response from OpenAI`);
       }
 
       return chatResponse.data.choices[0].message?.content;
     } catch (error) {
-      logger.error(`Error sending message to Slack: ${error}`);
-      throw new Error(`Error sending message to Slack: ${error}`);
+      return Logger.error(`Error while fetching OpenAI response: ${error}`);
     }
   }
 }

@@ -1,11 +1,12 @@
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
+
+import type { GitLabChanges } from '@/types/index';
+
 import { GitLab } from '@/services/index';
 import { checkFileFormat } from '@/util/checkFileFormat';
 import { CommentManager } from '@/util/gitlab/CommentManager';
-import { getFeedback } from '@/util/gpt/getFeedback';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
-
-import type { GitLabChanges } from '@/types/index';
+import { getFeedback } from '@/util/gpt/getFeedback';
 
 /**
  * Handles feedback for a GitLab Merge Request
@@ -35,7 +36,7 @@ async function handleMergeRequestFeedback(
         const language: string | false = await checkFileFormat(new_path);
 
         if (deleted_file || !language) {
-          logger.info(`Ignored: ${new_path}`);
+          Logger.info(`Ignored: ${new_path}`);
           return;
         }
 
@@ -55,10 +56,9 @@ async function handleMergeRequestFeedback(
       }),
     );
 
-    logger.info('Merge request validated');
+    Logger.info('Merge request validated');
   } catch (error) {
-    logger.error(`Error handling merge request feedback: ${error}`);
-    throw new Error(`Error handling merge request feedback: ${error}`);
+    Logger.error(`Error handling merge request feedback: ${error}`);
   }
 }
 

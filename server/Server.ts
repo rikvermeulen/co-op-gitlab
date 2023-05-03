@@ -1,13 +1,12 @@
-import os from 'os';
-import express, { Request, Response, NextFunction } from 'express';
 import { Server as HttpServer } from 'http';
+import os from 'os';
 import cors from 'cors';
-
-//Runtime imports for the server
-import { logger } from '@/server/Logger.js';
+import express, { NextFunction, Request, Response } from 'express';
 import { config } from '@/server/Config.js';
-import { Router } from '@/server/Router.js';
 import { Controller } from '@/server/Controllers.js';
+//Runtime imports for the server
+import { Logger } from '@/server/Logger.js';
+import { Router } from '@/server/Router.js';
 
 class Server {
   #app = express();
@@ -18,7 +17,7 @@ class Server {
 
   constructor() {
     // Log server start
-    logger.info('[SERVER] App starting...');
+    Logger.info('[SERVER] App starting...');
 
     // Set the host and port
     this.#host = config.HOST ?? 'localhost';
@@ -48,7 +47,7 @@ class Server {
 
   run(): HttpServer {
     return this.#app.listen(this.#port, this.#host, () => {
-      logger.info(
+      Logger.info(
         `[SERVER] Service started with success! App running at: ${this.#host}:${this.#port}`,
       );
     });
@@ -59,7 +58,7 @@ class Server {
       this.#app.use(mw);
     });
 
-    logger.info(`[SERVER] Loaded ${middlewares.length} global middleware(s)`);
+    Logger.info(`[SERVER] Loaded ${middlewares.length} global middleware(s)`);
   }
 
   loadRouters(routers: Array<Router>): void {
@@ -68,7 +67,7 @@ class Server {
         const routes = router.routes;
 
         if (routes.length === 0) {
-          logger.warn(`[ROUTER] ${router.name} is initialized without routes!`);
+          Logger.warn(`[ROUTER] ${router.name} is initialized without routes!`);
         }
 
         routes.forEach((route: any) => {
@@ -84,7 +83,7 @@ class Server {
           }
         });
 
-        logger.info(`[SERVER] Loaded ${routes.length} router(s)`);
+        Logger.info(`[SERVER] Loaded ${routes.length} router(s)`);
       } else {
         console.error('Error at line:', router);
         throw new Error(`Class is not an instance of 'Router'!`);
@@ -97,7 +96,7 @@ class Server {
     this.#app.use(express.text());
     this.#app.use(express.urlencoded({ extended: false }));
 
-    logger.info(`[SERVER] Loaded default body parsers (json, text, urlencoded and multer)`);
+    Logger.info(`[SERVER] Loaded default body parsers (json, text, urlencoded and multer)`);
   }
 
   includeDefaultCorsHeaders(origin: string | RegExp) {
@@ -107,7 +106,7 @@ class Server {
       }),
     );
 
-    logger.info(`[SERVER] Loaded default CORS headers`);
+    Logger.info(`[SERVER] Loaded default CORS headers`);
   }
 
   includeDefaultCompression() {
@@ -119,8 +118,8 @@ class Server {
       }),
     );
 
-    logger.info(`[SERVER] Loaded default compression (deflate, gzip)`);
-    logger.warn(
+    Logger.info(`[SERVER] Loaded default compression (deflate, gzip)`);
+    Logger.warn(
       `[SERVER] !!! Please note: We recommend you to disable compression on production environments. Loadbalancers and reverse proxies are 9/10 times faster at doing this job... !!!`,
     );
   }
