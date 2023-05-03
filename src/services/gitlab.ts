@@ -32,14 +32,12 @@ class GitLab {
 
       if (!response.ok) {
         Logger.error(`HTTP error ${response.status}`);
-        throw new Error(`HTTP error ${response.status}`);
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
       Logger.error(`Error connecting to GitLab: ${error}`);
-      throw new Error(`Error connecting to GitLab: ${error}`);
     }
   }
 }
