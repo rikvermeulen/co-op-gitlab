@@ -1,6 +1,6 @@
-import { Slack } from '@/services/slack';
 import { logger } from '@/server/Logger';
 import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
+import { SlackManager } from '@/util/slack/slackManager';
 
 import type { GitlabMergeEvent } from '@/types/index';
 
@@ -10,8 +10,6 @@ import type { GitlabMergeEvent } from '@/types/index';
  * @param mergeRequest The merge request object to create the Slack message for.
  * @returns The created Slack message object.
  */
-
-const slack = new Slack();
 
 function sendSlackMessage(payload: GitlabMergeEvent) {
   const {
@@ -25,6 +23,8 @@ function sendSlackMessage(payload: GitlabMergeEvent) {
     blocks: [],
   };
 
+  const slack = new SlackManager();
+
   try {
     const labels = payload.labels.map((label) => label.title).join(', ');
 
@@ -35,7 +35,7 @@ function sendSlackMessage(payload: GitlabMergeEvent) {
     addTextWithMarkdown(message, text);
 
     // Return the created Slack message.
-    slack.sendMessage(message);
+    slack.message(message);
   } catch (error) {
     logger.error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
     throw new Error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
