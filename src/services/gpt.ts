@@ -53,8 +53,8 @@ class GPT {
 
       return chatResponse.data.choices[0].message?.content;
     } catch (error) {
-      Logger.error(`Error sending message to Slack: ${error}`);
-      throw new Error(`Error sending message to Slack: ${error}`);
+      Logger.error(`Error while fetching OpenAI response: ${error}`);
+      throw new Error(`Error while fetching OpenAI response: ${error}`);
     }
   }
 }
