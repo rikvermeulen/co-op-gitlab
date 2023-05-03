@@ -2,14 +2,8 @@
 
 const config = {
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'unused-imports', 'prettier', 'import', 'simple-import-sort'],
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'plugin:import/typescript',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['prettier'],
+  plugins: ['@typescript-eslint', 'unused-imports'],
   ignorePatterns: ['node_modules/*', 'dist/*'],
   rules: {
     'prettier/prettier': [
@@ -19,9 +13,6 @@ const config = {
         endOfLine: 'auto',
       },
     ],
-    'import/order': 'off',
-    'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error',
   },
   settings: {
     'import/resolver': {
