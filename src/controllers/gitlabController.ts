@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { config } from '@/server/Config';
 import { Controller } from '@/server/Controllers';
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
 
 import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 
@@ -43,7 +43,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   } = payload;
 
   if (!id || !iid) {
-    logger.error('Invalid project ID or merge request ID');
+    Logger.error('Invalid project ID or merge request ID');
     throw new Error('Invalid project ID or merge request ID');
   }
 
@@ -80,7 +80,7 @@ async function handleNoteEvent(payload: GitlabNoteEvent) {
       if (slack_token) await comment.reply(source_project_id, iid, id, username);
       await handleMergeRequestFeedback(source_project_id, iid, source_branch);
     } catch (error) {
-      logger.error('Error validating merge request:', error);
+      Logger.error('Error validating merge request:', error);
     }
   }
 
@@ -91,7 +91,7 @@ async function handleMergeRequestOpen(id: number, iid: number, source_branch: st
   try {
     await handleMergeRequestFeedback(id, iid, source_branch);
   } catch (error) {
-    logger.error('Error validating merge request:', error);
+    Logger.error('Error validating merge request:', error);
   } finally {
     if (slack_token) {
       slack.emoji(id, 'speech_balloon');

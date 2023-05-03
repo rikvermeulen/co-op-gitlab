@@ -1,10 +1,12 @@
 import { config } from '@/server/Config';
-import { logger } from '@/server/Logger';
-import { GPT } from '@/services/index';
-import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
-import glossary from '@/util/glossary';
-import type { AvailableChatModels } from '@/services/gpt';
+import { Logger } from '@/server/Logger';
+
 import type { GitLabChanges } from '@/types/index';
+
+import type { AvailableChatModels } from '@/services/gpt';
+import { GPT } from '@/services/index';
+import glossary from '@/util/glossary';
+import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
 
 /**
  * Generates feedback for a given GitLab change and language
@@ -37,7 +39,7 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
 
     return feedback;
   } catch (error) {
-    logger.error(`Error generating feedback for change ${change.new_path}: ${error}`);
+    Logger.error(`Error generating feedback for change ${change.new_path}: ${error}`);
     throw new Error(`Error generating feedback for change ${change.new_path}: ${error}`);
   }
 }

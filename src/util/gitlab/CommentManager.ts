@@ -1,6 +1,8 @@
-import { logger } from '@/server/Logger';
-import { GitLab } from '@/services/gitlab';
+import { Logger } from '@/server/Logger';
+
 import type { GitlabCommentPayload } from '@/types/index.js';
+
+import { GitLab } from '@/services/gitlab';
 
 class CommentManager {
   /**
@@ -44,9 +46,9 @@ class CommentManager {
       // Add the comment to the merge request
       const result = await new GitLab('POST', `${url}/discussions`, payload).connect();
 
-      logger.info('Comment added to:', result.id);
+      Logger.info('Comment added to:', result.id);
     } catch (error) {
-      logger.error(`Error adding comment to merge request: ${error}`);
+      Logger.error(`Error adding comment to merge request: ${error}`);
       throw new Error(`Error adding comment to merge request: ${error}`);
     }
   }
@@ -74,9 +76,9 @@ class CommentManager {
       };
 
       const result = await new GitLab('POST', `${url}/notes`, payload).connect();
-      logger.info('Comment added to:', result.id);
+      Logger.info('Comment added to:', result.id);
     } catch (error) {
-      logger.error(`Error adding reply to merge request: ${error}`);
+      Logger.error(`Error adding reply to merge request: ${error}`);
       throw new Error(`Error adding reply to merge request: ${error}`);
     }
   }

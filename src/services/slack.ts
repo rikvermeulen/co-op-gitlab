@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api';
 import { config } from '@/server/Config';
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
 
 const { SLACK_BOT_TOKEN, SLACK_CHANNEL } = config;
 
@@ -24,9 +24,9 @@ class Slack {
         unfurl_media: false,
       });
 
-      logger.status('Slack message sent to', result.channel);
+      Logger.status('Slack message sent to', result.channel);
     } catch (error) {
-      logger.error(`Error sending message to Slack: ${error}`);
+      Logger.error(`Error sending message to Slack: ${error}`);
       throw new Error(`Error sending message to Slack: ${error}`);
     }
   }
@@ -40,9 +40,9 @@ class Slack {
         name: emoji,
       });
 
-      logger.status('Slack message sent to', result.channel);
+      Logger.status('Slack message sent to', result.channel);
     } catch (error) {
-      logger.error(`Error sending reaction to Slack: ${error}`);
+      Logger.error(`Error sending reaction to Slack: ${error}`);
       throw new Error(`Error sending reaction to Slack: ${error}`);
     }
   }
@@ -58,11 +58,11 @@ class Slack {
       const messages = allMessages.messages || [];
 
       if (messages.length === 0) {
-        logger.error(`No messages to delete`);
+        Logger.error(`No messages to delete`);
         throw new Error(`No messages to delete`);
       }
 
-      logger.status(`Deleting ${messages.length} messages...`);
+      Logger.status(`Deleting ${messages.length} messages...`);
 
       for (const message of messages) {
         if (!message.ts) return;
@@ -73,9 +73,9 @@ class Slack {
         });
       }
 
-      logger.success('All messages deleted');
+      Logger.success('All messages deleted');
     } catch (error) {
-      logger.error(`Error deleting message to Slack: ${error}`);
+      Logger.error(`Error deleting message to Slack: ${error}`);
       throw new Error(`Error deleting message to Slack: ${error}`);
     }
   }

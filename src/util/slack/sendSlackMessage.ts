@@ -1,8 +1,9 @@
-import { logger } from '@/server/Logger';
-import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
-import { SlackManager } from '@/util/slack/slackManager';
+import { Logger } from '@/server/Logger';
 
 import type { GitlabMergeEvent } from '@/types/index';
+
+import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
+import { SlackManager } from '@/util/slack/slackManager';
 
 /**
  * Creates a Slack message for a new merge request.
@@ -37,7 +38,7 @@ function sendSlackMessage(payload: GitlabMergeEvent) {
     // Return the created Slack message.
     slack.message(message);
   } catch (error) {
-    logger.error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
+    Logger.error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
     throw new Error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
   }
 }

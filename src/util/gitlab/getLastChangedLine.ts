@@ -1,7 +1,8 @@
-import { logger } from '@/server/Logger';
-import { GitLab } from '@/services/index';
+import { Logger } from '@/server/Logger';
 
 import type { GitLabChanges } from '@/types/index';
+
+import { GitLab } from '@/services/index';
 
 async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, projectId: number) {
   const { diff, new_path } = change;
@@ -36,7 +37,7 @@ async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, p
 
     return lastChangedLine;
   } catch (error) {
-    logger.error(`Error getting line number: ${error}`);
+    Logger.error(`Error getting line number: ${error}`);
     throw new Error(`Error getting line number: ${error}`);
   }
 }

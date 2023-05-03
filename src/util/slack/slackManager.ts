@@ -1,4 +1,4 @@
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
 
 import { Slack } from '@/services/slack';
 import { getTimeStampMessage } from '@/util/slack/getTimeStampMessage';
@@ -11,7 +11,7 @@ class SlackManager {
       // Return the created Slack message.
       slack.sendMessage(message);
     } catch (error) {
-      logger.error(`Failed to create Slack message for merge request: ${error}`);
+      Logger.error(`Failed to create Slack message for merge request: ${error}`);
       throw new Error(`Failed to create Slack message for merge request: ${error}`);
     }
   }
@@ -21,7 +21,7 @@ class SlackManager {
       const timestamp = await getTimeStampMessage(id);
       await slack.sendMessage({ text: text }, timestamp);
     } catch (error) {
-      logger.error(`Failed to add message to slack thread ${id}: ${error}`);
+      Logger.error(`Failed to add message to slack thread ${id}: ${error}`);
       throw new Error(`Failed to add message to slack thread ${id}: ${error}`);
     }
   }
@@ -32,7 +32,7 @@ class SlackManager {
 
       await slack.sendReaction(emoji, timestamp);
     } catch (error) {
-      logger.error(`Failed to add emoji to slack thread ${id}: ${error}`);
+      Logger.error(`Failed to add emoji to slack thread ${id}: ${error}`);
       throw new Error(`Failed to add message to slack thread ${id}: ${error}`);
     }
   }
