@@ -20,7 +20,7 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
   try {
     const { userPrompt, systemPrompt } = glossary;
 
-    const model = config.OPENAI_MODEL as AvailableChatModels;
+    const model = (config.OPENAI_MODEL as AvailableChatModels) || 'gpt-3.5-turbo';
     const parameters: Parameter[] = [
       {
         key: 'language',
