@@ -49,7 +49,6 @@ class CommentManager {
       Logger.info('Comment added to:', result.id);
     } catch (error) {
       Logger.error(`Error adding comment to merge request: ${error}`);
-      throw new Error(`Error adding comment to merge request: ${error}`);
     }
   }
 
@@ -79,7 +78,6 @@ class CommentManager {
       Logger.info('Comment added to:', result.id);
     } catch (error) {
       Logger.error(`Error adding reply to merge request: ${error}`);
-      throw new Error(`Error adding reply to merge request: ${error}`);
     }
   }
 }

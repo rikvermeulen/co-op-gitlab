@@ -38,7 +38,7 @@ async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, p
     return lastChangedLine;
   } catch (error) {
     Logger.error(`Error getting line number: ${error}`);
-    throw new Error(`Error getting line number: ${error}`);
+    return;
   }
 }
 

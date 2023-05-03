@@ -40,7 +40,6 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
     return feedback;
   } catch (error) {
     Logger.error(`Error generating feedback for change ${change.new_path}: ${error}`);
-    throw new Error(`Error generating feedback for change ${change.new_path}: ${error}`);
   }
 }
 

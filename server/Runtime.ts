@@ -4,7 +4,7 @@ const Runtime = async (sandbox: () => void) => {
   // Catch unhandled promise rejections
   process.on('unhandledRejection', (err) => {
     Logger.error('[RUNTIME] Unhandled Rejection found!:');
-    Logger.error(err);
+    Logger.error(err as string); // Log the error with an optional error code
     process.exit(1);
   });
 

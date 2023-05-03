@@ -27,7 +27,7 @@ async function getTimeStampMessage(messageId: number, limit = 30): Promise<strin
     return message.ts;
   } catch (error) {
     Logger.error(`Error getting timestamp for message ${messageId}: ${error}`);
-    throw new Error(`Error getting timestamp for message ${messageId}: ${error}`);
+    return '';
   }
 }
 

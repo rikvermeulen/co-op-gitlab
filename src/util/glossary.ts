@@ -6,3 +6,11 @@ export default {
   slack_message_merged: 'This Merge-request has been merged  :robot_face:',
   gitlab_command: '/feedback-gpt',
 };
+
+const prompt = `
+Please provide a detailed review and feedback on the following code snippet, with a focus on the added lines (indicated by "+") and their line numbers. Suggest any improvements that can be made to the code in terms of readability, efficiency, error handling, or best practices. In addition, provide any specific recommendations on refactoring the code and identify any potential issues or bugs. Please provide the updated code snippet within a markdown collapsible section titled "Click here to expand to see the snippet." 
+
+Language: {language}
+Code snippet:
+{changes}
+`;

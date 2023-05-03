@@ -21,9 +21,10 @@ const shouldLog = (level: keyof typeof logLevels) => {
 };
 
 export const Logger = {
-  error(...args: unknown[]) {
+  error(error: Error | string, code?: number) {
     if (shouldLog('error')) {
-      console.log(color(31), `[${timestamp()}] [ERROR]`, ...args);
+      const errorMessage = error instanceof Error ? error.message : error;
+      console.log(color(31), `[${timestamp()}] [ERROR] [${code || ''}]`, errorMessage);
     }
   },
   warn(...args: unknown[]) {

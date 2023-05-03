@@ -31,8 +31,7 @@ class GPT {
     const openai = new OpenAIApi(configuration);
 
     if (!openai) {
-      Logger.error(`No configuration found`);
-      throw new Error(`No configuration found`);
+      return Logger.error(`No configuration found`);
     }
 
     try {
@@ -47,14 +46,12 @@ class GPT {
       });
 
       if (!chatResponse.data.choices[0]) {
-        Logger.error(`No response from OpenAI`);
-        throw new Error(`No response from OpenAI`);
+        return Logger.error(`No response from OpenAI`);
       }
 
       return chatResponse.data.choices[0].message?.content;
     } catch (error) {
-      Logger.error(`Error while fetching OpenAI response: ${error}`);
-      throw new Error(`Error while fetching OpenAI response: ${error}`);
+      return Logger.error(`Error while fetching OpenAI response: ${error}`);
     }
   }
 }

@@ -39,7 +39,6 @@ function sendSlackMessage(payload: GitlabMergeEvent) {
     slack.message(message);
   } catch (error) {
     Logger.error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
-    throw new Error(`Failed to create Slack message for merge request with ID ${id}: ${error}`);
   }
 }
 

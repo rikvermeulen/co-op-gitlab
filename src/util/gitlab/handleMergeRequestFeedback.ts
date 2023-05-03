@@ -59,7 +59,6 @@ async function handleMergeRequestFeedback(
     Logger.info('Merge request validated');
   } catch (error) {
     Logger.error(`Error handling merge request feedback: ${error}`);
-    throw new Error(`Error handling merge request feedback: ${error}`);
   }
 }
 

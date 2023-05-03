@@ -12,7 +12,6 @@ class SlackManager {
       slack.sendMessage(message);
     } catch (error) {
       Logger.error(`Failed to create Slack message for merge request: ${error}`);
-      throw new Error(`Failed to create Slack message for merge request: ${error}`);
     }
   }
 
@@ -22,7 +21,6 @@ class SlackManager {
       await slack.sendMessage({ text: text }, timestamp);
     } catch (error) {
       Logger.error(`Failed to add message to slack thread ${id}: ${error}`);
-      throw new Error(`Failed to add message to slack thread ${id}: ${error}`);
     }
   }
 
@@ -33,7 +31,6 @@ class SlackManager {
       await slack.sendReaction(emoji, timestamp);
     } catch (error) {
       Logger.error(`Failed to add emoji to slack thread ${id}: ${error}`);
-      throw new Error(`Failed to add message to slack thread ${id}: ${error}`);
     }
   }
 }

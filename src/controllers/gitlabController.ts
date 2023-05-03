@@ -43,8 +43,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   } = payload;
 
   if (!id || !iid) {
-    Logger.error('Invalid project ID or merge request ID');
-    throw new Error('Invalid project ID or merge request ID');
+    return Logger.error('Invalid project ID or merge request ID');
   }
 
   if (state === 'opened' && !work_in_progress) {
@@ -80,7 +79,7 @@ async function handleNoteEvent(payload: GitlabNoteEvent) {
       if (slack_token) await comment.reply(source_project_id, iid, id, username);
       await handleMergeRequestFeedback(source_project_id, iid, source_branch);
     } catch (error) {
-      Logger.error('Error validating merge request:', error);
+      Logger.error(`Error validating merge request: ${error}`);
     }
   }
 
@@ -91,7 +90,7 @@ async function handleMergeRequestOpen(id: number, iid: number, source_branch: st
   try {
     await handleMergeRequestFeedback(id, iid, source_branch);
   } catch (error) {
-    Logger.error('Error validating merge request:', error);
+    Logger.error(`Error validating merge request: ${error}`);
   } finally {
     if (slack_token) {
       slack.emoji(id, 'speech_balloon');
