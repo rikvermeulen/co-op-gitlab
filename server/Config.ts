@@ -16,6 +16,8 @@ const config = {
 
   SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
   SLACK_CHANNEL: process.env.SLACK_CHANNEL,
+
+  LOG_LEVEL: process.env.LOG_LEVEL,
 };
 
 export { config };

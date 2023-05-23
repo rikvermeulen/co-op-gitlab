@@ -33,6 +33,14 @@ class SlackManager {
       Logger.error(`Failed to add emoji to slack thread ${id}: ${error}`);
     }
   }
+
+  async deleteMessages(): Promise<void> {
+    try {
+      await slack.deleteMessages();
+    } catch (error) {
+      Logger.error(`Failed to delete messages from Slack: ${error}`);
+    }
+  }
 }
 
 export { SlackManager };

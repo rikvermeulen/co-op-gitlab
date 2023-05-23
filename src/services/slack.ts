@@ -46,33 +46,68 @@ class Slack {
   }
 
   // Function to delete all messages from the bot in the channel
-  async deleteAllMessages(): Promise<void> {
+  async deleteMessages(): Promise<void> {
     try {
-      let allMessages = await this.web.conversations.history({
+      const history = await this.web.conversations.history({
         channel: this.channel,
         limit: 1000,
       });
 
-      const messages = allMessages.messages || [];
+      const messages = history.messages || [];
 
-      if (messages.length === 0) {
-        return Logger.error(`No messages to delete`);
+      if (!messages.length) {
+        Logger.error('No messages to delete');
+        return;
       }
 
       Logger.status(`Deleting ${messages.length} messages...`);
 
       for (const message of messages) {
-        if (!message.ts) return;
-        if (message.bot_profile) continue;
-        await this.web.chat.delete({
-          channel: this.channel,
-          ts: message.ts,
-        });
+        // Delete main channel messages from bot
+        if (message.ts && message.bot_profile) {
+          await this.deleteMessage(message.ts);
+        }
+
+        // Check if there are thread replies
+        if (message.reply_users && message.ts) {
+          await this.deleteThreadReplies(message.ts);
+        }
       }
 
       Logger.success('All messages deleted');
     } catch (error) {
       Logger.error(`Error deleting message to Slack: ${error}`);
+    }
+  }
+
+  async deleteMessage(ts: string): Promise<void> {
+    try {
+      await this.web.chat.delete({
+        channel: this.channel,
+        ts,
+      });
+    } catch (error) {
+      Logger.error(`Error deleting message with ts=${ts}: ${error}`);
+    }
+  }
+
+  async deleteThreadReplies(parentTs: string): Promise<void> {
+    try {
+      const threadReplies = await this.web.conversations.replies({
+        channel: this.channel,
+        ts: parentTs,
+      });
+
+      if (!threadReplies.messages) return;
+
+      // Delete thread replies from bot
+      for (const reply of threadReplies.messages) {
+        if (reply.bot_profile && reply.ts) {
+          await this.deleteMessage(reply.ts);
+        }
+      }
+    } catch (error) {
+      Logger.error(`Error deleting thread replies to message with ts=${parentTs}: ${error}`);
     }
   }
 }
