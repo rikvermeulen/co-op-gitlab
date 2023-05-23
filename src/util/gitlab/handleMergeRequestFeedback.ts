@@ -27,8 +27,8 @@ async function handleMergeRequestFeedback(
   try {
     const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-    await Promise.all(
-      changes.map(async (change: GitLabChanges) => {
+    const promises = changes.map(async (change: GitLabChanges) => {
+      try {
         const { diff, new_path, deleted_file, old_path } = change;
 
         if (!diff) return;
@@ -53,8 +53,12 @@ async function handleMergeRequestFeedback(
         if (!feedback) return;
 
         commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
-      }),
-    );
+      } catch (error) {
+        Logger.error(`Error processing change ${change.new_path}: ${error}`);
+      }
+    });
+
+    await Promise.all(promises);
 
     Logger.info('Merge request validated');
   } catch (error) {
