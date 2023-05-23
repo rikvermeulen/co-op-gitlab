@@ -7,6 +7,7 @@ import { checkFileFormat } from '@/util/checkFileFormat';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
 import { getFeedback } from '@/util/gpt/getFeedback';
+import { identifyFramework } from '@/util/identifyFramework';
 
 /**
  * Handles feedback for a GitLab Merge Request
@@ -48,7 +49,9 @@ async function handleMergeRequestFeedback(
 
         if (!lineNumber) return;
 
-        const feedback: string | undefined = await getFeedback(change, language);
+        const framework = await identifyFramework(projectId);
+
+        const feedback: string | undefined = await getFeedback(change, language, framework);
 
         if (!feedback) return;
 

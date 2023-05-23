@@ -16,7 +16,11 @@ import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
  * @returns The generated feedback, or undefined if an error occurs
  */
 
-async function getFeedback(change: GitLabChanges, language: string): Promise<string | undefined> {
+async function getFeedback(
+  change: GitLabChanges,
+  language: string,
+  framework: string,
+): Promise<string | undefined> {
   try {
     const { userPrompt, systemPrompt } = glossary;
 
@@ -27,13 +31,17 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
         value: language,
       },
       {
+        key: 'framework',
+        value: framework,
+      },
+      {
         key: 'changes',
         value: change.diff,
       },
     ];
 
     const system: string = createGPTPrompt(systemPrompt, parameters);
-    const user: string = createGPTPrompt(userPrompt, parameters);
+    const user: string = userPrompt;
 
     const feedback: string = await new GPT(user, system, model).connect();
 
