@@ -5,7 +5,7 @@
  * @returns The language corresponding to the file extension if the file meets the requirements for feedback, false otherwise
  */
 
-async function checkFileFormat(fileName: string): Promise<string | false> {
+async function identifyFile(fileName: string): Promise<string | false> {
   // List of excluded file extensions
   const excludedExtensions: string[] = [
     '.md',
@@ -63,4 +63,4 @@ async function checkFileFormat(fileName: string): Promise<string | false> {
   return false;
 }
 
-export { checkFileFormat };
+export { identifyFile };

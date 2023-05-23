@@ -3,10 +3,10 @@ import { Logger } from '@/server/Logger';
 import type { GitLabChanges } from '@/types/index';
 
 import { GitLab } from '@/services/index';
-import { checkFileFormat } from '@/util/checkFileFormat';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
 import { getFeedback } from '@/util/gpt/getFeedback';
+import { identifyFile } from '@/util/identifyFile';
 import { identifyFramework } from '@/util/identifyFramework';
 
 /**
@@ -34,7 +34,7 @@ async function handleMergeRequestFeedback(
 
         if (!diff) return;
 
-        const language: string | false = await checkFileFormat(new_path);
+        const language: string | false = await identifyFile(new_path);
 
         if (deleted_file || !language) {
           Logger.info(`Ignored: ${new_path}`);
