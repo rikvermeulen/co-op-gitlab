@@ -73,7 +73,10 @@ async function processChange(
   try {
     const { diff, new_path, deleted_file, old_path } = change;
 
-    if (!diff) return;
+    if (!diff) {
+      Logger.info(`No diff found for ${new_path}}`);
+      return;
+    }
 
     const language: string | false = await identifyFile(new_path);
 
@@ -92,7 +95,10 @@ async function processChange(
 
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
-    if (!feedback) return;
+    if (!feedback) {
+      Logger.info("couldn't get feedback");
+      return;
+    }
 
     commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
   } catch (error) {
