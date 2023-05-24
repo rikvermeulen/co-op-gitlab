@@ -22,6 +22,8 @@ controller.post('/', [validateGitlabToken], async (req: Request, res: Response) 
   const event = req.header('X-Gitlab-Event');
   const payload = req.body;
   try {
+    console.log('event', event);
+    console.log('payload', payload);
     if (event === 'Merge Request Hook') {
       await handleMergeRequestEvent(payload);
     }
