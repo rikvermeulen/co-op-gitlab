@@ -1,5 +1,10 @@
+#
 # Define OS for dependencies
-FROM node:lts-alpine AS deps
+#
+FROM alpine:3.15 AS deps
+
+# Install packages
+RUN apk add --no-cache nodejs npm
 
 # Create app directory
 WORKDIR /app
@@ -8,10 +13,16 @@ WORKDIR /app
 COPY ./package.json ./package-lock.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci && npm cache clean --force
 
+#
 # Define OS for build
-FROM node:lts-alpine AS build
+#
+
+FROM alpine:3.15 AS build
+
+# Install packages
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 
@@ -21,10 +32,17 @@ COPY . .
 
 RUN npm run build
 
+#
 # Define OS for production
-FROM node:lts-alpine AS production
+#
+
+FROM alpine:3.15 AS production
+
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
 
 # Set node env
 ENV NODE_ENV=production
@@ -37,6 +55,8 @@ COPY --from=build /app/dist ./dist
 EXPOSE 3000
 
 ENV PORT 3000
+
+
 
 # Start the webhook
 CMD ["npm", "start"]
