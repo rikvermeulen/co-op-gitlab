@@ -4,7 +4,11 @@ import type { GitLabChanges } from '@/types/index';
 
 import { GitLab } from '@/services/index';
 
-async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, projectId: number) {
+async function getLastChangedLine(
+  change: GitLabChanges,
+  sourceBranch: string,
+  projectId: number,
+): Promise<number> {
   const { diff, new_path } = change;
 
   try {
@@ -14,7 +18,7 @@ async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, p
     const fileContentResponse = await new GitLab('GET', fileContentUrl).connect();
     const fileContent = Buffer.from(fileContentResponse.content, 'base64').toString('utf-8');
 
-    if (!fileContent) return;
+    if (!fileContent) return 0;
 
     const diffLines = diff.split('\n');
     let lineNumber = 0;
@@ -38,7 +42,7 @@ async function getLastChangedLine(change: GitLabChanges, sourceBranch: string, p
     return lastChangedLine;
   } catch (error) {
     Logger.error(`Error getting line number: ${error}`);
-    return;
+    return 0;
   }
 }
 

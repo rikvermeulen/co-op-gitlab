@@ -21,9 +21,10 @@ async function handleMergeRequestFeedback(
   projectId: number,
   mergeRequestId: number,
   sourceBranch: string,
-): Promise<void> {
+): Promise<boolean> {
   const perPage = 20;
   let page = 1;
+  let feedbackAdded = false;
 
   Logger.info(`Handling feedback for merge request ${mergeRequestId} for project ${projectId}`);
 
@@ -41,9 +42,11 @@ async function handleMergeRequestFeedback(
 
       const errors: Error[] = [];
       const promises = changes.map((change) =>
-        processChange(change, mergeRequestId, sourceBranch, projectId, framework).catch((error) =>
-          errors.push(error),
-        ),
+        processChange(change, mergeRequestId, sourceBranch, projectId, framework)
+          .then((res) => {
+            feedbackAdded = feedbackAdded || res;
+          })
+          .catch((error) => errors.push(error)),
       );
 
       await Promise.all(promises);
@@ -61,6 +64,7 @@ async function handleMergeRequestFeedback(
     }
 
     Logger.info('Merge request validated');
+    return feedbackAdded;
   } catch (error) {
     Logger.error(`Error handling merge request feedback: ${error}`);
     throw error;
@@ -83,7 +87,7 @@ async function processChange(
   sourceBranch: string,
   projectId: number,
   framework: string,
-): Promise<void> {
+): Promise<boolean> {
   const commentManager = new CommentManager();
 
   try {
@@ -91,32 +95,30 @@ async function processChange(
 
     if (!diff) {
       Logger.info(`No diff found for ${new_path}}`);
-      return;
+      return false;
     }
 
     const language: string | false = await identifyFile(new_path);
 
     if (deleted_file || !language) {
       Logger.info(`Ignored: ${new_path}`);
-      return;
+      return false;
     }
 
-    const lineNumber: number | undefined = await getLastChangedLine(
-      change,
-      sourceBranch,
-      projectId,
-    );
+    const lineNumber: number = await getLastChangedLine(change, sourceBranch, projectId);
 
-    if (!lineNumber) return;
+    if (!lineNumber) return false;
 
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
     if (!feedback) {
       Logger.info("couldn't get feedback");
-      return;
+      return false;
     }
 
     commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
+
+    return true;
   } catch (error) {
     Logger.error(`Error processing change ${change.new_path}: ${error}`);
     throw error;
