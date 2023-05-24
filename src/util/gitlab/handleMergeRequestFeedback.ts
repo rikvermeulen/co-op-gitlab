@@ -22,25 +22,37 @@ async function handleMergeRequestFeedback(
   mergeRequestId: number,
   sourceBranch: string,
 ): Promise<void> {
-  const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs`;
+  const perPage = 20;
+  let page = 1;
 
   try {
-    const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
+    while (true) {
+      const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
 
-    const framework = await identifyFramework(projectId);
+      const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-    const errors: Error[] = [];
-    const promises = changes.map((change) =>
-      processChange(change, mergeRequestId, sourceBranch, projectId, framework).catch((error) =>
-        errors.push(error),
-      ),
-    );
+      if (changes.length === 0) {
+        break;
+      }
 
-    await Promise.all(promises);
+      const framework = await identifyFramework(projectId);
 
-    if (errors.length > 0) {
-      Logger.error(`Some changes failed to process ${errors}`);
-      throw new Error('Some changes failed to process');
+      const errors: Error[] = [];
+      const promises = changes.map((change) =>
+        processChange(change, mergeRequestId, sourceBranch, projectId, framework).catch((error) =>
+          errors.push(error),
+        ),
+      );
+
+      await Promise.all(promises);
+
+      if (errors.length > 0) {
+        Logger.error(`Some changes failed to process ${errors}`);
+        throw new Error('Some changes failed to process');
+      }
+
+      Logger.info(`Processed page ${page} of changes`);
+      page++;
     }
 
     Logger.info('Merge request validated');
