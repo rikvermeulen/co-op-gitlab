@@ -54,7 +54,7 @@ async function identifyFile(fileName: string): Promise<string | false> {
   // Check if the file has an excluded extension
   const fileExtensionMatch = /(?:\.([^.]+))?$/.exec(fileName);
   const fileExtension: string =
-    fileExtensionMatch && fileExtensionMatch[1] ? fileExtensionMatch[1] : '';
+    fileExtensionMatch && fileExtensionMatch[1] ? '.' + fileExtensionMatch[1] : '';
 
   if (excludedExtensions.has(fileExtension)) {
     return false;
