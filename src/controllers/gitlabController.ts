@@ -49,7 +49,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   Logger.info(`Handling note event for merge request ${iid} for project ${id}`, payload);
 
   if (state === 'opened' && !work_in_progress) {
-    if (action === 'open') {
+    if (action === 'open' || action === 'reopen') {
       if (slack_token) sendSlackMessage(payload);
       await handleMergeRequestOpen(id, iid, source_branch);
     }
