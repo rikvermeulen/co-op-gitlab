@@ -43,10 +43,11 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   } = payload;
 
   if (!id || !iid) {
-    return Logger.error('Invalid project ID or merge request ID');
+    Logger.error('Invalid project ID or merge request ID');
+    return;
   }
 
-  Logger.info(`Handling note event for merge request ${iid} for project ${id}`, payload);
+  Logger.status(`Handling event for merge request ${iid} for project ${id}`);
 
   if (state === 'opened' && !work_in_progress) {
     if (action === 'open' || action === 'reopen') {

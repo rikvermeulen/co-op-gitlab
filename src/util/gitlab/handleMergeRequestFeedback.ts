@@ -26,7 +26,6 @@ async function handleMergeRequestFeedback(
 
   try {
     const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
-    console.log(changes);
 
     if (!changes) return;
 
