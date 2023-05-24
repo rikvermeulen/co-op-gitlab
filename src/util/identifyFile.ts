@@ -1,3 +1,7 @@
+import NodeCache from 'node-cache';
+
+const myCache = new NodeCache();
+
 /**
  * Checks if a file meets the requirements to receive feedback
  *
@@ -6,6 +10,11 @@
  */
 
 async function identifyFile(fileName: string): Promise<string | false> {
+  const cachedLanguage = myCache.get(fileName);
+  if (cachedLanguage) {
+    return cachedLanguage as string;
+  }
+
   // List of excluded file extensions
   const excludedExtensions: string[] = [
     '.md',
@@ -55,11 +64,13 @@ async function identifyFile(fileName: string): Promise<string | false> {
   }
 
   // If the file passes all checks, check if it's in the list of allowed extensions
-  if (fileExtension in allowedExtensions) {
-    return allowedExtensions[fileExtension] ?? false;
+  const language = allowedExtensions[fileExtension];
+
+  if (language) {
+    myCache.set(fileName, language);
+    return language;
   }
 
-  // If the file extension is not in the allowed extensions list, return false
   return false;
 }
 

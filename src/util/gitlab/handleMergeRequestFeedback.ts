@@ -27,9 +27,11 @@ async function handleMergeRequestFeedback(
   try {
     const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
+    const framework = await identifyFramework(projectId);
+
     const errors: Error[] = [];
     const promises = changes.map((change) =>
-      processChange(change, mergeRequestId, sourceBranch, projectId).catch((error) =>
+      processChange(change, mergeRequestId, sourceBranch, projectId, framework).catch((error) =>
         errors.push(error),
       ),
     );
@@ -52,6 +54,7 @@ async function processChange(
   mergeRequestId: number,
   sourceBranch: string,
   projectId: number,
+  framework: string,
 ): Promise<void> {
   const commentManager = new CommentManager();
 
@@ -74,8 +77,6 @@ async function processChange(
     );
 
     if (!lineNumber) return;
-
-    const framework = await identifyFramework(projectId);
 
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
