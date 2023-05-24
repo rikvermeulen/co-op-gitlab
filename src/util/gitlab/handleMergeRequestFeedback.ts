@@ -3,11 +3,11 @@ import { Logger } from '@/server/Logger';
 import type { GitLabChanges } from '@/types/index';
 
 import { GitLab } from '@/services/index';
-import { CommentManager } from '@/util/gitlab/CommentManager';
+import { identifyFile } from '@/util/base/identifyFile';
+import { identifyFramework } from '@/util/base/identifyFramework';
+import { CommentManager } from '@/util/gitlab/commentManager';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
 import { getFeedback } from '@/util/gpt/getFeedback';
-import { identifyFile } from '@/util/identifyFile';
-import { identifyFramework } from '@/util/identifyFramework';
 
 /**
  * Handles feedback for a GitLab Merge Request

@@ -3,12 +3,8 @@ import { Controller } from '@/server/Controllers';
 import { Logger } from '@/server/Logger';
 
 import { validateGitlabToken } from '@/middlewares/validateGitlabToken';
+import { MERGE_REQUEST_HOOK, NOTE_HOOK, SYSTEM_HOOK } from '@/util/consts';
 import { handleMergeRequestEvent, handleNoteEvent } from '@/util/gitlab/gitLabHandlers';
-
-// Constants
-const MERGE_REQUEST_HOOK = 'Merge Request Hook';
-const SYSTEM_HOOK = 'System Hook';
-const NOTE_HOOK = 'Note Hook';
 
 // Initial setup
 const controller = new Controller('gitlabController');
