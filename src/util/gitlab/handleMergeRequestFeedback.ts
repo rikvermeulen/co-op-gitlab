@@ -25,6 +25,8 @@ async function handleMergeRequestFeedback(
   const perPage = 20;
   let page = 1;
 
+  Logger.info(`Handling feedback for merge request ${mergeRequestId} for project ${projectId}`);
+
   try {
     while (true) {
       const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;

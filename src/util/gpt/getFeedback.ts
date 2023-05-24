@@ -1,3 +1,4 @@
+import Sentiment from 'sentiment';
 import { config } from '@/server/Config';
 import { Logger } from '@/server/Logger';
 
@@ -7,6 +8,8 @@ import type { AvailableChatModels } from '@/services/gpt';
 import { GPT } from '@/services/index';
 import glossary from '@/util/glossary';
 import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
+
+const sentiment = new Sentiment();
 
 /**
  * Generates feedback for a given GitLab change and language
@@ -40,10 +43,20 @@ async function getFeedback(
       },
     ];
 
-    const system: string = createGPTPrompt(systemPrompt, parameters);
-    const user: string = userPrompt;
+    //prompt for the system
+    const system: string = systemPrompt;
+
+    //prompt for the user
+    const user: string = createGPTPrompt(userPrompt, parameters);
 
     const feedback: string = await new GPT(user, system, model).connect();
+
+    const result = sentiment.analyze(feedback);
+
+    // If the sentiment is negative, handle it
+    if (result.score < 0) {
+      return 'Sorry, but I am unable to provide useful feedback for this change.';
+    }
 
     return feedback;
   } catch (error) {
