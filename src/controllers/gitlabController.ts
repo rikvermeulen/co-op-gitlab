@@ -30,7 +30,7 @@ controller.post('/', [validateGitlabToken], async (req: Request, res: Response) 
       await handleNoteEvent(payload);
     }
 
-    res.sendStatus(200).send('Merge request handled successfully');
+    res.status(200).send('Merge request handled successfully');
   } catch (error) {
     res.status(500).send('Error handling GitLab event');
   }
