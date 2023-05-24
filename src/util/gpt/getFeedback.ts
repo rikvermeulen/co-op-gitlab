@@ -43,13 +43,10 @@ async function getFeedback(
       },
     ];
 
-    //prompt for the system
-    const system: string = systemPrompt;
-
     //prompt for the user
     const user: string = createGPTPrompt(userPrompt, parameters);
 
-    const feedback: string = await new GPT(user, system, model).connect();
+    const feedback: string = await new GPT(user, systemPrompt, model).connect();
 
     const result = sentiment.analyze(feedback);
 

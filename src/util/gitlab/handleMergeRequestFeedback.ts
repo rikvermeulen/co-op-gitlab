@@ -26,8 +26,6 @@ async function handleMergeRequestFeedback(
   let page = 1;
   let feedbackAdded = false;
 
-  Logger.info(`Handling feedback for merge request ${mergeRequestId} for project ${projectId}`);
-
   try {
     while (true) {
       const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
@@ -93,26 +91,19 @@ async function processChange(
   try {
     const { diff, new_path, deleted_file, old_path } = change;
 
-    if (!diff) {
-      Logger.info(`No diff found for ${new_path}}`);
-      return false;
-    }
-
     const language: string | false = await identifyFile(new_path);
 
-    if (deleted_file || !language) {
+    if (!diff || deleted_file || !language) {
       Logger.info(`Ignored: ${new_path}`);
       return false;
     }
 
     const lineNumber: number = await getLastChangedLine(change, sourceBranch, projectId);
 
-    if (!lineNumber) return false;
-
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
-    if (!feedback) {
-      Logger.info("couldn't get feedback");
+    if (!feedback || !lineNumber) {
+      Logger.info("couldn't process feedback");
       return false;
     }
 

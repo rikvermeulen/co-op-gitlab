@@ -6,13 +6,11 @@ import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
 import glossary from '@/util/glossary';
-import { sendSlackMessage } from '@/util/slack/sendSlackMessage';
 import { SlackManager } from '@/util/slack/slackManager';
 
 const slack = new SlackManager();
 const comment = new CommentManager();
 
-const slack_token = config.SLACK_BOT_TOKEN;
 const command = glossary.gitlab_command;
 
 /**
@@ -26,8 +24,18 @@ const command = glossary.gitlab_command;
 async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void> {
   const {
     event_type,
-    project: { id },
-    object_attributes: { state, action, iid, work_in_progress, source_branch },
+    project: { id, name },
+    object_attributes: {
+      state,
+      action,
+      iid,
+      work_in_progress,
+      source_branch,
+      title,
+      url,
+      target_branch,
+    },
+    user: { name: user },
   } = payload;
 
   if (event_type !== 'merge_request') return;
@@ -36,7 +44,12 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
 
   if (state === 'opened' && !work_in_progress) {
     if (action === 'open' || action === 'reopen') {
-      if (slack_token) sendSlackMessage(payload);
+      // Define the text for the merge request information.
+      const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
+
+      // Return the created Slack message.
+      slack.messageWithMarkdown(id, text);
+
       await handleMergeRequestOpen(id, iid, source_branch);
     }
 

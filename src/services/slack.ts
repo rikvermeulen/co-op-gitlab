@@ -110,6 +110,24 @@ class Slack {
       Logger.error(`Error deleting thread replies to message with ts=${parentTs}: ${error}`);
     }
   }
+
+  async getTimeStamp(id: number, limit = 30): Promise<string> {
+    try {
+      const { messages } = await this.web.conversations.history({
+        channel: this.channel,
+        limit: limit,
+      });
+
+      const message = messages?.find((m) => m.text === id.toString());
+
+      if (!message?.ts) throw new Error(`Message not found in channel ${this.channel}`);
+
+      return message.ts;
+    } catch (error) {
+      Logger.error(`Error getting timestamp for message ${id}: ${error}`);
+      return '';
+    }
+  }
 }
 
 export { Slack };

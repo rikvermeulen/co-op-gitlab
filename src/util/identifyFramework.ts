@@ -13,6 +13,10 @@ interface PackageJson {
   devDependencies?: Record<string, unknown>;
 }
 
+interface TreeNode {
+  path: string;
+}
+
 const frameworkCache = new NodeCache();
 
 async function identifyFramework(projectId: number, branch: string = 'main') {
@@ -41,7 +45,7 @@ async function identifyFramework(projectId: number, branch: string = 'main') {
           }
           break;
         case 'file':
-          if (signature.every((file) => repoTree.find((node: any) => node.path === file))) {
+          if (signature.every((file) => repoTree.find((node: TreeNode) => node.path === file))) {
             frameworkCache.set(`framework-${projectId}`, framework);
             return framework;
           }

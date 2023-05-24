@@ -1,12 +1,12 @@
 import { Logger } from '@/server/Logger';
 
 import { Slack } from '@/services/slack';
-import { getTimeStampMessage } from '@/util/slack/getTimeStampMessage';
+import { addTextWithMarkdown } from '@/util/slack/addTextWithMarkdown';
 
 const slack = new Slack();
 
 class SlackManager {
-  async message(message: Object): Promise<void> {
+  message(message: Object) {
     try {
       // Return the created Slack message.
       slack.sendMessage(message);
@@ -15,10 +15,34 @@ class SlackManager {
     }
   }
 
+  messageWithMarkdown(id: number, text: string) {
+    try {
+      const message = {
+        text: id,
+        blocks: [],
+      };
+      // Add the formatted text to the message blocks using the addTextWithMarkdown util function.
+      addTextWithMarkdown(message, text);
+
+      // Return the created Slack message.
+      slack.sendMessage(message);
+    } catch (error) {
+      Logger.error(`Failed to delete messages from Slack: ${error}`);
+    }
+  }
+
+  deleteMessages() {
+    try {
+      slack.deleteMessages();
+    } catch (error) {
+      Logger.error(`Failed to delete messages from Slack: ${error}`);
+    }
+  }
+
   async thread(id: number, text: string): Promise<void> {
     try {
-      const timestamp = await getTimeStampMessage(id);
-      await slack.sendMessage({ text: text }, timestamp);
+      const timestamp = await slack.getTimeStamp(id);
+      slack.sendMessage({ text: text }, timestamp);
     } catch (error) {
       Logger.error(`Failed to add message to slack thread ${id}: ${error}`);
     }
@@ -26,19 +50,11 @@ class SlackManager {
 
   async emoji(id: number, emoji: string): Promise<void> {
     try {
-      const timestamp = await getTimeStampMessage(id);
+      const timestamp = await slack.getTimeStamp(id);
 
-      await slack.sendReaction(emoji, timestamp);
+      slack.sendReaction(emoji, timestamp);
     } catch (error) {
       Logger.error(`Failed to add emoji to slack thread ${id}: ${error}`);
-    }
-  }
-
-  async deleteMessages(): Promise<void> {
-    try {
-      await slack.deleteMessages();
-    } catch (error) {
-      Logger.error(`Failed to delete messages from Slack: ${error}`);
     }
   }
 }
