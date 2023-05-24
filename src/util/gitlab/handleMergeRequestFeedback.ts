@@ -31,7 +31,7 @@ async function handleMergeRequestFeedback(
 
       const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-      if (changes.length === 0) {
+      if (!changes || changes.length === 0) {
         break;
       }
 
@@ -47,7 +47,10 @@ async function handleMergeRequestFeedback(
       await Promise.all(promises);
 
       if (errors.length > 0) {
-        Logger.error(`Some changes failed to process ${errors}`);
+        errors.forEach((error) =>
+          Logger.error(`Some changes failed to process ${error.toString()}`),
+        );
+
         throw new Error('Some changes failed to process');
       }
 
@@ -58,8 +61,19 @@ async function handleMergeRequestFeedback(
     Logger.info('Merge request validated');
   } catch (error) {
     Logger.error(`Error handling merge request feedback: ${error}`);
+    throw error;
   }
 }
+
+/**
+ * Processes a change in the GitLab Merge Request
+ *
+ * @param change - The GitLab change
+ * @param mergeRequestId - The ID of the Merge Request
+ * @param sourceBranch - The source branch name
+ * @param projectId - The ID of the GitLab project
+ * @param framework - The project's framework
+ */
 
 async function processChange(
   change: GitLabChanges,
