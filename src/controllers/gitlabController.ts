@@ -75,6 +75,10 @@ async function handleNoteEvent(payload: GitlabNoteEvent) {
   if (noteable_type !== 'MergeRequest') return;
 
   if (note && note.includes(command)) {
+    Logger.info(
+      `Handling note event for merge request ${iid} for project ${source_project_id}`,
+      payload,
+    );
     try {
       if (slack_token) await comment.reply(source_project_id, iid, id, username);
       await handleMergeRequestFeedback(source_project_id, iid, source_branch);
