@@ -15,6 +15,7 @@ class CommentManager {
    * @param {number} newLine
    * @returns {Promise<void>}
    */
+
   async create(
     projectId: number,
     mergeRequestId: number,
