@@ -1,3 +1,4 @@
+import Sentiment from 'sentiment';
 import { config } from '@/server/Config';
 import { Logger } from '@/server/Logger';
 
@@ -8,6 +9,8 @@ import { GPT } from '@/services/index';
 import glossary from '@/util/glossary';
 import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
 
+const sentiment = new Sentiment();
+
 /**
  * Generates feedback for a given GitLab change and language
  *
@@ -16,7 +19,11 @@ import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
  * @returns The generated feedback, or undefined if an error occurs
  */
 
-async function getFeedback(change: GitLabChanges, language: string): Promise<string | undefined> {
+async function getFeedback(
+  change: GitLabChanges,
+  language: string,
+  framework: string,
+): Promise<string | undefined> {
   try {
     const { userPrompt, systemPrompt } = glossary;
 
@@ -27,15 +34,29 @@ async function getFeedback(change: GitLabChanges, language: string): Promise<str
         value: language,
       },
       {
+        key: 'framework',
+        value: framework,
+      },
+      {
         key: 'changes',
         value: change.diff,
       },
     ];
 
-    const system: string = createGPTPrompt(systemPrompt, parameters);
+    //prompt for the system
+    const system: string = systemPrompt;
+
+    //prompt for the user
     const user: string = createGPTPrompt(userPrompt, parameters);
 
     const feedback: string = await new GPT(user, system, model).connect();
+
+    const result = sentiment.analyze(feedback);
+
+    // If the sentiment is negative, handle it
+    if (result.score < 0) {
+      return 'Sorry, but I am unable to provide useful feedback for this change.';
+    }
 
     return feedback;
   } catch (error) {

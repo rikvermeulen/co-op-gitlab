@@ -3,10 +3,11 @@ import { Logger } from '@/server/Logger';
 import type { GitLabChanges } from '@/types/index';
 
 import { GitLab } from '@/services/index';
-import { checkFileFormat } from '@/util/checkFileFormat';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
 import { getFeedback } from '@/util/gpt/getFeedback';
+import { identifyFile } from '@/util/identifyFile';
+import { identifyFramework } from '@/util/identifyFramework';
 
 /**
  * Handles feedback for a GitLab Merge Request
@@ -21,50 +22,104 @@ async function handleMergeRequestFeedback(
   mergeRequestId: number,
   sourceBranch: string,
 ): Promise<void> {
-  const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs`;
-  const commentManager = new CommentManager();
+  const perPage = 20;
+  let page = 1;
+
+  Logger.info(`Handling feedback for merge request ${mergeRequestId} for project ${projectId}`);
 
   try {
-    const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
+    while (true) {
+      const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
 
-    if (!changes) return;
+      const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-    const promises = changes.map(async (change: GitLabChanges) => {
-      try {
-        const { diff, new_path, deleted_file, old_path } = change;
+      if (!changes || changes.length === 0) {
+        break;
+      }
 
-        if (!diff) return;
+      const framework = await identifyFramework(projectId);
 
-        const language: string | false = await checkFileFormat(new_path);
+      const errors: Error[] = [];
+      const promises = changes.map((change) =>
+        processChange(change, mergeRequestId, sourceBranch, projectId, framework).catch((error) =>
+          errors.push(error),
+        ),
+      );
 
-        if (deleted_file || !language) {
-          Logger.info(`Ignored: ${new_path}`);
-          return;
-        }
+      await Promise.all(promises);
 
-        const lineNumber: number | undefined = await getLastChangedLine(
-          change,
-          sourceBranch,
-          projectId,
+      if (errors.length > 0) {
+        errors.forEach((error) =>
+          Logger.error(`Some changes failed to process ${error.toString()}`),
         );
 
-        if (!lineNumber) return;
-
-        const feedback: string | undefined = await getFeedback(change, language);
-
-        if (!feedback) return;
-
-        commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
-      } catch (error) {
-        Logger.error(`Error processing change ${change.new_path}: ${error}`);
+        throw new Error('Some changes failed to process');
       }
-    });
 
-    await Promise.all(promises);
+      Logger.info(`Processed page ${page} of changes`);
+      page++;
+    }
 
     Logger.info('Merge request validated');
   } catch (error) {
     Logger.error(`Error handling merge request feedback: ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Processes a change in the GitLab Merge Request
+ *
+ * @param change - The GitLab change
+ * @param mergeRequestId - The ID of the Merge Request
+ * @param sourceBranch - The source branch name
+ * @param projectId - The ID of the GitLab project
+ * @param framework - The project's framework
+ */
+
+async function processChange(
+  change: GitLabChanges,
+  mergeRequestId: number,
+  sourceBranch: string,
+  projectId: number,
+  framework: string,
+): Promise<void> {
+  const commentManager = new CommentManager();
+
+  try {
+    const { diff, new_path, deleted_file, old_path } = change;
+
+    if (!diff) {
+      Logger.info(`No diff found for ${new_path}}`);
+      return;
+    }
+
+    const language: string | false = await identifyFile(new_path);
+
+    if (deleted_file || !language) {
+      Logger.info(`Ignored: ${new_path}`);
+      return;
+    }
+
+    const lineNumber: number | undefined = await getLastChangedLine(
+      change,
+      sourceBranch,
+      projectId,
+    );
+
+    if (!lineNumber) return;
+
+    const feedback: string | undefined = await getFeedback(change, language, framework);
+
+    if (!feedback) {
+      Logger.info("couldn't get feedback");
+      return;
+    }
+
+    commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
+  } catch (error) {
+    Logger.error(`Error processing change ${change.new_path}: ${error}`);
+    throw error;
   }
 }
 
