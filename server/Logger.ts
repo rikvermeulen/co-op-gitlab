@@ -1,4 +1,4 @@
-const LOG_LEVEL = 'info';
+const LOG_LEVEL = 'status';
 
 const color = (number: number) => {
   return `\x1b[${number}m%s\x1b[0m`;
