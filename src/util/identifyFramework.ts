@@ -13,11 +13,11 @@ interface PackageJson {
   devDependencies?: Record<string, unknown>;
 }
 
-const myCache = new NodeCache();
+const frameworkCache = new NodeCache();
 
 async function identifyFramework(projectId: number, branch: string = 'main') {
   const { frameworkSignatures } = glossary;
-  const cachedFramework = myCache.get(`framework-${projectId}`);
+  const cachedFramework = frameworkCache.get(`framework-${projectId}`);
   if (cachedFramework) {
     return cachedFramework as string;
   }
@@ -36,19 +36,19 @@ async function identifyFramework(projectId: number, branch: string = 'main') {
       switch (type) {
         case 'package':
           if (packageJson && signature.every((dependency) => dependencies.has(dependency))) {
-            myCache.set(`framework-${projectId}`, framework);
+            frameworkCache.set(`framework-${projectId}`, framework);
             return framework;
           }
           break;
         case 'file':
           if (signature.every((file) => repoTree.find((node: any) => node.path === file))) {
-            myCache.set(`framework-${projectId}`, framework);
+            frameworkCache.set(`framework-${projectId}`, framework);
             return framework;
           }
           break;
       }
     }
-    myCache.set(`framework-${projectId}`, 'Unknown');
+    frameworkCache.set(`framework-${projectId}`, 'Unknown');
     return 'Unknown';
   } catch (error) {
     console.error(error);

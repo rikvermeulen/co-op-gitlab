@@ -1,6 +1,6 @@
 import NodeCache from 'node-cache';
 
-const myCache = new NodeCache();
+const fileCache = new NodeCache();
 
 /**
  * Checks if a file meets the requirements to receive feedback
@@ -10,7 +10,7 @@ const myCache = new NodeCache();
  */
 
 async function identifyFile(fileName: string): Promise<string | false> {
-  const cachedLanguage = myCache.get(fileName);
+  const cachedLanguage = fileCache.get(fileName);
   if (cachedLanguage) {
     return cachedLanguage as string;
   }
@@ -67,7 +67,7 @@ async function identifyFile(fileName: string): Promise<string | false> {
   const language = allowedExtensions[fileExtension];
 
   if (language) {
-    myCache.set(fileName, language);
+    fileCache.set(fileName, language);
     return language;
   }
 
