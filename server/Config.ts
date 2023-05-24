@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 
+import { Config } from './types';
+
 dotenv.config();
 
-const config = {
+const config: Config = {
   PORT: process.env.PORT,
   HOST: process.env.HOST,
   URL: process.env.URL,
