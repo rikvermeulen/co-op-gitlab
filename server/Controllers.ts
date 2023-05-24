@@ -1,14 +1,6 @@
-import { Request, Response, Router } from 'express';
-import { logger } from '@/server/Logger.js';
-
-import type { RouterMethods, Middleware, Handler } from '@/server/types.js';
-
-export interface Route {
-  path: string;
-  method: string;
-  handler: (req: Request, res: Response) => void;
-  middlewares: Array<Middleware>;
-}
+import { Router } from 'express';
+import { Logger } from '@/server/Logger.js';
+import { Route, type Handler, type Middleware, type RouterMethods } from '@/server/types.js';
 
 class Controller {
   name: string;
@@ -56,7 +48,7 @@ class Controller {
 
   getRouter(routerName: string): Router {
     if (this.routes.length === 0) {
-      logger.warn(`[CONTROLLER] ${routerName}/${this.name} is initialized without routes!`);
+      Logger.warn(`[CONTROLLER] ${routerName}/${this.name} is initialized without routes!`);
     }
 
     return this.router;

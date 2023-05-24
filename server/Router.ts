@@ -1,9 +1,4 @@
-export interface Route {
-  path: string;
-  method?: string;
-  controller: any;
-  middlewares: Array<any>;
-}
+import { Route } from '@/server/types';
 
 class Router {
   name: string;

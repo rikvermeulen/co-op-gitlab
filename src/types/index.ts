@@ -11,7 +11,7 @@ export interface GitLabChanges {
   deleted_file: boolean;
 }
 
-export type GitlabEvent = {
+export type GitlabMergeEvent = {
   user: { name: string };
   project: { id: number; name: string };
   object_attributes: {
@@ -24,6 +24,23 @@ export type GitlabEvent = {
     target_branch: string;
     work_in_progress: boolean;
     description: string;
+  };
+  labels: { title: string }[];
+};
+
+export type GitlabNoteEvent = {
+  object_attributes: {
+    noteable_type: string;
+    note: string;
+    id: number;
+  };
+  merge_request: {
+    iid: number;
+    source_project_id: number;
+    source_branch: string;
+  };
+  user: {
+    username: string;
   };
 };
 
@@ -40,15 +57,4 @@ export interface GitlabCommentPosition {
 export interface GitlabCommentPayload {
   body: string;
   position: GitlabCommentPosition;
-}
-
-export interface slackMergeRequestMessage {
-  id: number;
-  name: string;
-  title: string;
-  user: string;
-  description: string;
-  url: string;
-  source_branch: string;
-  target_branch: string;
 }

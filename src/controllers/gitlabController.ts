@@ -1,87 +1,116 @@
 import { Request, Response } from 'express';
-
+import { config } from '@/server/Config';
 import { Controller } from '@/server/Controllers';
-import type { GitlabEvent } from '@/types/index';
-import { Slack } from '@/services/slack';
-import { createSlackMessage } from '@/util/slack/getMergeMessage';
-import { getTimeStampMessage } from '@/util/slack/getTimeStamp';
-import { logger } from '@/server/Logger';
+import { Logger } from '@/server/Logger';
+
+import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
+
+import { validateGitlabToken } from '@/middlewares/validateGitlabToken';
+import { CommentManager } from '@/util/gitlab/CommentManager';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
+import glossary from '@/util/glossary';
+import { sendSlackMessage } from '@/util/slack/sendSlackMessage';
+import { SlackManager } from '@/util/slack/slackManager';
 
 const controller = new Controller('gitlabController');
 
-const slack = new Slack();
+const slack = new SlackManager();
 
-controller.post('/', [], async (req: Request, res: Response) => {
+const slack_token = config.SLACK_BOT_TOKEN;
+
+controller.post('/', [validateGitlabToken], async (req: Request, res: Response) => {
   const event = req.header('X-Gitlab-Event');
   const payload = req.body;
   try {
     if (event === 'Merge Request Hook') {
       await handleMergeRequestEvent(payload);
     }
+
+    if (event === 'Note Hook') {
+      await handleNoteEvent(payload);
+    }
+
     res.sendStatus(200);
   } catch (error) {
-    logger.error('Error handling GitLab event:', error);
     res.status(500).send('Error handling GitLab event');
   }
 });
 
-async function handleMergeRequestEvent(payload: GitlabEvent) {
+async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   const {
-    user: { name: user },
-    project: { id, name },
-    object_attributes: {
-      title,
-      state,
-      action,
-      iid,
-      url,
-      source_branch,
-      target_branch,
-      work_in_progress,
-      description,
-    },
+    project: { id },
+    object_attributes: { state, action, iid, work_in_progress, source_branch },
   } = payload;
 
-  if (!id || !iid) throw new Error('Invalid project ID or merge request ID');
+  if (!id || !iid) {
+    return Logger.error('Invalid project ID or merge request ID');
+  }
 
-  if (action === 'open' && state === 'opened' && !work_in_progress) {
-    try {
-      const text = createSlackMessage({
-        id,
-        name,
-        title,
-        user,
-        description,
-        url,
-        source_branch,
-        target_branch,
-      });
-      await slack.sendMessage(text);
-      logger.info('Slack message sent');
-    } catch (error) {
-      logger.error('Error sending message to Slack:', error);
+  if (state === 'opened' && !work_in_progress) {
+    if (action === 'open') {
+      if (slack_token) sendSlackMessage(payload);
+      await handleMergeRequestOpen(id, iid, source_branch);
     }
+
+    if (action === 'update') {
+      await handleMergeRequestUpdated();
+    }
+  }
+
+  if (state === 'merged') {
+    await handleMergeRequestMerged(id);
+  }
+}
+
+async function handleNoteEvent(payload: GitlabNoteEvent) {
+  const {
+    object_attributes: { noteable_type, note, id },
+    merge_request: { iid, source_project_id, source_branch },
+    user: { username },
+  } = payload;
+
+  const command = glossary.gitlab_command;
+  const comment = new CommentManager();
+
+  if (noteable_type !== 'MergeRequest') return;
+
+  if (note && note.includes(command)) {
     try {
-      await handleMergeRequestFeedback(id, iid);
+      if (slack_token) await comment.reply(source_project_id, iid, id, username);
+      await handleMergeRequestFeedback(source_project_id, iid, source_branch);
     } catch (error) {
-      logger.error('Error validating merge request:', error);
-    } finally {
-      finalizeMergeRequest(id);
+      Logger.error(`Error validating merge request: ${error}`);
+    }
+  }
+
+  return;
+}
+
+async function handleMergeRequestOpen(id: number, iid: number, source_branch: string) {
+  try {
+    await handleMergeRequestFeedback(id, iid, source_branch);
+  } catch (error) {
+    Logger.error(`Error validating merge request: ${error}`);
+  } finally {
+    if (slack_token) {
+      slack.emoji(id, 'speech_balloon');
+      slack.thread(id, glossary.slack_message_feedback);
     }
   }
 }
 
-async function finalizeMergeRequest(id: number): Promise<void> {
+async function handleMergeRequestUpdated() {
   try {
-    const timestamp = await getTimeStampMessage(id);
-    await slack.sendMessage(
-      { text: 'Hi, I added some feedback to your merge request :robot_face:' },
-      timestamp,
-    );
-  } catch (error) {
-    console.error(`Failed to finalize merge request with ID ${id}:`, error);
-  }
+  } catch {}
+}
+
+async function handleMergeRequestMerged(id: number) {
+  try {
+    if (slack_token) {
+      slack.emoji(id, 'white_check_mark');
+      slack.thread(id, glossary.slack_message_feedback);
+    }
+  } catch {}
 }
 
 export { controller };

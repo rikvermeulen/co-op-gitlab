@@ -14,7 +14,8 @@
       "@/types/*": ["src/types/*"],
       "@/controllers/*": ["src/controllers/*"],
       "@/helpers/*": ["src/helpers/*"],
-      "@/services/*": ["src/services/*"]
+      "@/services/*": ["src/services/*"],
+      "@/middlewares/*": ["src/middlewares/*"]
     },
     "checkJs": true,
 
@@ -40,5 +41,6 @@
     "skipLibCheck": true,
     "useDefineForClassFields": true
   },
-  "include": ["src", "../reset.d.ts", ".eslintrc.cjs", "server"]
+  "include": ["src", ".eslintrc.cjs", "server", "tests"],
+  "exclude": ["node_modules", "dist"]
 }

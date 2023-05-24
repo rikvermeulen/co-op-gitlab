@@ -1,88 +1,125 @@
-import { GPT, GitLab } from '@/services/index';
-import { GitLabChanges } from '@/types/index';
-import { asyncForEach } from '@/helpers/asyncForEach';
-import { checkFileFormat } from '@/util/checkFileFormat';
-import { createComment } from '@/util/gitlab/createComment';
-import { type Parameter, createGPTPrompt } from '../createGPTPrompt';
-import { logger } from '@/server/Logger';
-import glossary from '@/util/glossary';
+import { Logger } from '@/server/Logger';
+
+import type { GitLabChanges } from '@/types/index';
+
+import { GitLab } from '@/services/index';
+import { CommentManager } from '@/util/gitlab/CommentManager';
+import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
+import { getFeedback } from '@/util/gpt/getFeedback';
+import { identifyFile } from '@/util/identifyFile';
+import { identifyFramework } from '@/util/identifyFramework';
 
 /**
  * Handles feedback for a GitLab Merge Request
  *
  * @param projectId - The ID of the GitLab project
  * @param mergeRequestId - The ID of the Merge Request
+ * @param sourceBranch - The source branch name
  */
 
 async function handleMergeRequestFeedback(
   projectId: number,
   mergeRequestId: number,
+  sourceBranch: string,
 ): Promise<void> {
-  const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs`;
+  const perPage = 20;
+  let page = 1;
+
+  Logger.info(`Handling feedback for merge request ${mergeRequestId} for project ${projectId}`);
 
   try {
-    // Get all changes in the merge request
-    const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
+    while (true) {
+      const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
 
-    // Process each change
-    await asyncForEach(changes, async (change: GitLabChanges) => {
-      const language: string | false = await checkFileFormat(change.new_path);
-      const lineNumber: number = change.diff.match(/\n/g)?.length || 0;
+      const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-      if (change.deleted_file || !language) {
-        logger.info(`Ignored: ${change.new_path}`);
-        return;
+      if (!changes || changes.length === 0) {
+        break;
       }
 
-      const feedback: string | undefined = await getFeedback(change, language);
+      const framework = await identifyFramework(projectId);
 
-      if (feedback) {
-        await createComment(
-          projectId,
-          mergeRequestId,
-          change.old_path,
-          change.new_path,
-          feedback,
-          lineNumber - 2,
+      const errors: Error[] = [];
+      const promises = changes.map((change) =>
+        processChange(change, mergeRequestId, sourceBranch, projectId, framework).catch((error) =>
+          errors.push(error),
+        ),
+      );
+
+      await Promise.all(promises);
+
+      if (errors.length > 0) {
+        errors.forEach((error) =>
+          Logger.error(`Some changes failed to process ${error.toString()}`),
         );
-      }
-    });
 
-    logger.info('Merge request validated');
+        throw new Error('Some changes failed to process');
+      }
+
+      Logger.info(`Processed page ${page} of changes`);
+      page++;
+    }
+
+    Logger.info('Merge request validated');
   } catch (error) {
-    logger.error(`Error validating merge request: ${error}`);
+    Logger.error(`Error handling merge request feedback: ${error}`);
+    throw error;
   }
 }
 
 /**
- * Generates feedback for a given GitLab change and language
+ * Processes a change in the GitLab Merge Request
  *
- * @param change - A GitLab change object
- * @param language - The programming language of the file
- * @returns The generated feedback, or undefined if an error occurs
+ * @param change - The GitLab change
+ * @param mergeRequestId - The ID of the Merge Request
+ * @param sourceBranch - The source branch name
+ * @param projectId - The ID of the GitLab project
+ * @param framework - The project's framework
  */
 
-async function getFeedback(change: GitLabChanges, language: string): Promise<string | undefined> {
+async function processChange(
+  change: GitLabChanges,
+  mergeRequestId: number,
+  sourceBranch: string,
+  projectId: number,
+  framework: string,
+): Promise<void> {
+  const commentManager = new CommentManager();
+
   try {
-    const basePrompt = glossary.prompt_gpt;
-    const parameters: Parameter[] = [
-      {
-        key: 'language',
-        value: language,
-      },
-      {
-        key: 'changes',
-        value: change.diff,
-      },
-    ];
+    const { diff, new_path, deleted_file, old_path } = change;
 
-    const prompt: string = createGPTPrompt(basePrompt, parameters);
+    if (!diff) {
+      Logger.info(`No diff found for ${new_path}}`);
+      return;
+    }
 
-    const feedback: string = await new GPT(prompt, 'gpt-3.5-turbo').connect();
+    const language: string | false = await identifyFile(new_path);
 
-    return feedback;
+    if (deleted_file || !language) {
+      Logger.info(`Ignored: ${new_path}`);
+      return;
+    }
+
+    const lineNumber: number | undefined = await getLastChangedLine(
+      change,
+      sourceBranch,
+      projectId,
+    );
+
+    if (!lineNumber) return;
+
+    const feedback: string | undefined = await getFeedback(change, language, framework);
+
+    if (!feedback) {
+      Logger.info("couldn't get feedback");
+      return;
+    }
+
+    commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
   } catch (error) {
-    logger.error(`Error handling feedback for change ${change.new_path}: ${error}`);
+    Logger.error(`Error processing change ${change.new_path}: ${error}`);
+    throw error;
   }
 }
 

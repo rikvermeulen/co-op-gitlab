@@ -1,6 +1,6 @@
 import fetch, { Response } from 'node-fetch';
-
 import { config } from '@/server/Config';
+import { Logger } from '@/server/Logger';
 
 const { GITLAB_HOST, GITLAB_TOKEN } = config;
 
@@ -31,14 +31,13 @@ class GitLab {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
+        Logger.error(`HTTP error ${response.status}`);
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error connecting to GitLab:', error);
-      return null;
+      Logger.error(`Error connecting to GitLab: ${error}`);
     }
   }
 }
