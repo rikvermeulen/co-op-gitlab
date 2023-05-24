@@ -46,6 +46,8 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
     return Logger.error('Invalid project ID or merge request ID');
   }
 
+  Logger.info(`Handling note event for merge request ${iid} for project ${id}`, payload);
+
   if (state === 'opened' && !work_in_progress) {
     if (action === 'open') {
       if (slack_token) sendSlackMessage(payload);
