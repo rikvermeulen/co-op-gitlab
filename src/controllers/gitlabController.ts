@@ -22,9 +22,7 @@ controller.post('/', [validateGitlabToken], async (req: Request, res: Response) 
   const event = req.header('X-Gitlab-Event');
   const payload = req.body;
   try {
-    console.log('event', event);
-    console.log('payload', payload);
-    if (event === 'Merge Request Hook') {
+    if (event === 'Merge Request Hook' || event === 'System Hook') {
       await handleMergeRequestEvent(payload);
     }
 
@@ -40,6 +38,7 @@ controller.post('/', [validateGitlabToken], async (req: Request, res: Response) 
 
 async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
   const {
+    event_type,
     project: { id },
     object_attributes: { state, action, iid, work_in_progress, source_branch },
   } = payload;
@@ -48,6 +47,8 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent) {
     Logger.error('Invalid project ID or merge request ID');
     return;
   }
+
+  if (event_type !== 'merge_request') return;
 
   Logger.status(`Handling event for merge request ${iid} for project ${id}`);
 

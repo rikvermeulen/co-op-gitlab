@@ -12,6 +12,7 @@ export interface GitLabChanges {
 }
 
 export type GitlabMergeEvent = {
+  event_type: string;
   user: { name: string };
   project: { id: number; name: string };
   object_attributes: {
