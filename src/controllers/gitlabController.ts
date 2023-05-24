@@ -118,7 +118,7 @@ async function handleMergeRequestMerged(id: number) {
 }
 
 // Utility function to handle Slack messaging
-async function handleSlackMessaging(id: number, emoji: string, message: string) {
+function handleSlackMessaging(id: number, emoji: string, message: string) {
   if (config.SLACK_BOT_TOKEN) {
     slack.emoji(id, emoji);
     slack.thread(id, message);
