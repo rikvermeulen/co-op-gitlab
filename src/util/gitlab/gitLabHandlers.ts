@@ -3,7 +3,7 @@ import { Logger } from '@/server/Logger';
 
 import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 
-import { CommentManager } from '@/util/gitlab/commentManager';
+import { CommentManager } from '@/util/gitlab/CommentManager';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
 import glossary from '@/util/glossary';
 import { SlackManager } from '@/util/slack/slackManager';

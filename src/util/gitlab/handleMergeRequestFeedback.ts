@@ -5,7 +5,7 @@ import type { GitLabChanges } from '@/types/index';
 import { GitLab } from '@/services/index';
 import { identifyFile } from '@/util/base/identifyFile';
 import { identifyFramework } from '@/util/base/identifyFramework';
-import { CommentManager } from '@/util/gitlab/commentManager';
+import { CommentManager } from '@/util/gitlab/CommentManager';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
 import { getFeedback } from '@/util/gpt/getFeedback';
 
