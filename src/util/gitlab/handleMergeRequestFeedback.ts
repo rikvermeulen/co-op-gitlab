@@ -27,12 +27,18 @@ async function handleMergeRequestFeedback(
   let feedbackAdded = false;
 
   try {
-    while (true) {
+    do {
       const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
 
       const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-      if (!changes || changes.length === 0) {
+      if (!changes) {
+        Logger.error(`Failed to fetch changes from GitLab API at url: ${url}`);
+        return false;
+      }
+
+      // If no changes, break the loop
+      if (changes.length === 0) {
         break;
       }
 
@@ -59,9 +65,10 @@ async function handleMergeRequestFeedback(
 
       Logger.info(`Processed page ${page} of changes`);
       page++;
-    }
+    } while (true);
 
     Logger.info('Merge request validated');
+
     return feedbackAdded;
   } catch (error) {
     Logger.error(`Error handling merge request feedback: ${error}`);

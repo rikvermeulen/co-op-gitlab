@@ -3,19 +3,20 @@ import { Logger } from '@/server/Logger';
 
 import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 
+import { FAILED_LABEL, IN_PROGRESS_LABEL, NOT_SUPPORTED_LABEL, SUCCESS_LABEL } from '@/util/consts';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
+import { LabelManager } from '@/util/gitlab/labelManager';
 import glossary from '@/util/glossary';
 import { SlackManager } from '@/util/slack/slackManager';
-
-import { LabelManager } from './labelManager';
 
 const slack = new SlackManager();
 const comment = new CommentManager();
 const label = new LabelManager();
 
-const command = glossary.gitlab_command;
+const SLACK_BOT_TOKEN = config.SLACK_BOT_TOKEN || '';
 
+const command = glossary.gitlab_command;
 /**
  * This function handles a GitLab MergeRequest event.
  *
@@ -108,17 +109,17 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
 
 async function handleMergeRequestOpen(id: number, iid: number, source_branch: string) {
   try {
-    label.create(id, iid, 'bot::review::in-progress');
+    label.create(id, iid, IN_PROGRESS_LABEL);
     const result = await handleMergeRequestFeedback(id, iid, source_branch);
     if (result) {
-      label.create(id, iid, 'bot::review::success');
+      label.create(id, iid, SUCCESS_LABEL);
       handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
     } else {
-      label.create(id, iid, 'bot::review::not-supported');
+      label.create(id, iid, NOT_SUPPORTED_LABEL);
       handleSlackMessaging(id, 'traingular_flag_on_post', glossary.slack_message_not_valid);
     }
   } catch (error) {
-    label.create(id, iid, 'bot::review::failed');
+    label.create(id, iid, FAILED_LABEL);
     Logger.error(`Error validating merge request: ${error}`);
   }
 }
@@ -155,7 +156,7 @@ async function handleMergeRequestMerged(id: number) {
 
 // Utility function to handle Slack messaging
 function handleSlackMessaging(id: number, emoji: string, message: string) {
-  if (config.SLACK_BOT_TOKEN) {
+  if (SLACK_BOT_TOKEN) {
     slack.emoji(id, emoji);
     slack.thread(id, message);
   }
