@@ -6,6 +6,7 @@ export default {
 
   //slack
   slack_message_feedback: 'Hi, I added some feedback to your merge request :robot_face:',
+  slack_message_not_valid: 'Hi, the pull request is not compatible for feedback :robot_face:',
   slack_message_merged: 'This Merge-request has been merged  :robot_face:',
 
   //gitlab

@@ -8,8 +8,11 @@ import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeed
 import glossary from '@/util/glossary';
 import { SlackManager } from '@/util/slack/slackManager';
 
+import { LabelManager } from './labelManager';
+
 const slack = new SlackManager();
 const comment = new CommentManager();
+const label = new LabelManager();
 
 const command = glossary.gitlab_command;
 
@@ -40,10 +43,10 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
 
   if (event_type !== 'merge_request') return;
 
-  Logger.status(`Handling event for merge request ${iid} for project ${id}`);
+  Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
 
   if (state === 'opened' && !work_in_progress) {
-    if (action === 'open' || action === 'reopen') {
+    if (action === 'open' || action === 'reopen' || !action) {
       const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
       slack.messageWithMarkdown(id, text);
 
@@ -105,9 +108,17 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
 
 async function handleMergeRequestOpen(id: number, iid: number, source_branch: string) {
   try {
+    label.create(id, iid, 'bot::review::in-progress');
     const result = await handleMergeRequestFeedback(id, iid, source_branch);
-    if (result) handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
+    if (result) {
+      label.create(id, iid, 'bot::review::success');
+      handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
+    } else {
+      label.create(id, iid, 'bot::review::not-supported');
+      handleSlackMessaging(id, 'traingular_flag_on_post', glossary.slack_message_not_valid);
+    }
   } catch (error) {
+    label.create(id, iid, 'bot::review::failed');
     Logger.error(`Error validating merge request: ${error}`);
   }
 }

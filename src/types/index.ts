@@ -56,6 +56,7 @@ export interface GitlabCommentPosition {
 }
 
 export interface GitlabCommentPayload {
-  body: string;
-  position: GitlabCommentPosition;
+  body?: string;
+  position?: GitlabCommentPosition;
+  labels?: string;
 }
