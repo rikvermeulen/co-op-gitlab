@@ -24,7 +24,7 @@ class Slack {
         unfurl_media: false,
       });
 
-      Logger.status('Slack message sent to', result.channel);
+      Logger.status(`Slack message "${text}" sent to`, result.channel);
     } catch (error) {
       Logger.error(`Error sending message to Slack: ${error}`);
     }
@@ -39,7 +39,7 @@ class Slack {
         name: emoji,
       });
 
-      Logger.status('Slack message sent to', result.channel);
+      Logger.status(`Slack message "${emoji}" sent to`, result.channel);
     } catch (error) {
       Logger.error(`Error sending reaction to Slack: ${error}`);
     }

@@ -7,7 +7,7 @@ import type { GitLabChanges } from '@/types/index';
 import type { AvailableChatModels } from '@/services/gpt';
 import { GPT } from '@/services/index';
 import glossary from '@/util/glossary';
-import { Parameter, createGPTPrompt } from '@/util/gpt/createGPTPrompt';
+import { createGPTPrompt, Parameter } from '@/util/gpt/createGPTPrompt';
 
 const sentiment = new Sentiment();
 
