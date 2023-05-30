@@ -11,6 +11,12 @@ import { createGPTPrompt, Parameter } from '@/util/gpt/createGPTPrompt';
 
 const sentiment = new Sentiment();
 
+const options = {
+  extras: {
+    error: 0,
+  },
+};
+
 /**
  * Generates feedback for a given GitLab change and language
  *
@@ -48,7 +54,9 @@ async function getFeedback(
 
     const feedback: string = await new GPT(user, systemPrompt, model).connect();
 
-    const result = sentiment.analyze(feedback);
+    const result = sentiment.analyze(feedback, options);
+
+    console.log(result);
 
     // If the sentiment is negative, handle it
     if (result.score < 0) {
