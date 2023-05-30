@@ -38,6 +38,7 @@ const allowedExtensions: Record<string, string> = {
   '.scss': 'SCSS',
   '.sass': 'SASS',
   '.sql': 'SQL',
+  '.twig': 'Twig',
 };
 
 async function identifyFile(fileName: string): Promise<string | false> {
