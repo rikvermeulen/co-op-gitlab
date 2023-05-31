@@ -5,10 +5,10 @@ import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 
 import {
   FAILED_LABEL,
+  GITLAB_COMMAND,
   IN_PROGRESS_LABEL,
   NOT_SUPPORTED_LABEL,
   SUCCESS_LABEL,
-  GITLAB_COMMAND,
 } from '@/util/consts';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
