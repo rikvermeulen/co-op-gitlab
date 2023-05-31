@@ -56,8 +56,6 @@ async function getFeedback(
 
     const result = sentiment.analyze(feedback, options);
 
-    console.log(result);
-
     // If the sentiment is negative, handle it
     if (result.score < 0) {
       return 'Sorry, but I am unable to provide useful feedback for this change.';

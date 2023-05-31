@@ -102,18 +102,12 @@ async function processChange(
 
     if (!diff || deleted_file || !language) {
       Logger.info(`Ignored: ${new_path}`);
-      commentManager.create(
-        projectId,
-        mergeRequestId,
-        old_path,
-        new_path,
-        'This file is to long to recieve feedback',
-        0,
-      );
       return false;
     }
 
     const lineNumber: number = await getLastChangedLine(change, sourceBranch, projectId);
+
+    console.log(`Processing: ${change.diff}`);
 
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
