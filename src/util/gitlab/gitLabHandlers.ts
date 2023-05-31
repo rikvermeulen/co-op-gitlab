@@ -3,7 +3,13 @@ import { Logger } from '@/server/Logger';
 
 import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 
-import { FAILED_LABEL, IN_PROGRESS_LABEL, NOT_SUPPORTED_LABEL, SUCCESS_LABEL } from '@/util/consts';
+import {
+  FAILED_LABEL,
+  IN_PROGRESS_LABEL,
+  NOT_SUPPORTED_LABEL,
+  SUCCESS_LABEL,
+  GITLAB_COMMAND,
+} from '@/util/consts';
 import { CommentManager } from '@/util/gitlab/CommentManager';
 import { handleMergeRequestFeedback } from '@/util/gitlab/handleMergeRequestFeedback';
 import { LabelManager } from '@/util/gitlab/labelManager';
@@ -15,8 +21,6 @@ const comment = new CommentManager();
 const label = new LabelManager();
 
 const SLACK_BOT_TOKEN = config.SLACK_BOT_TOKEN || '';
-
-const command = glossary.gitlab_command;
 /**
  * This function handles a GitLab MergeRequest event.
  *
@@ -83,7 +87,7 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
   if (noteable_type !== 'MergeRequest') return;
   Logger.info(`Handling note event for merge request ${iid} for project ${source_project_id}`);
 
-  if (note && note.includes(command)) {
+  if (note && note.includes(GITLAB_COMMAND)) {
     try {
       comment.reply(source_project_id, iid, id, username);
 
@@ -107,7 +111,11 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
  * @returns {Promise<void>} No return value.
  */
 
-async function handleMergeRequestOpen(id: number, iid: number, source_branch: string) {
+async function handleMergeRequestOpen(
+  id: number,
+  iid: number,
+  source_branch: string,
+): Promise<void> {
   try {
     label.create(id, iid, IN_PROGRESS_LABEL);
     const result = await handleMergeRequestFeedback(id, iid, source_branch);
@@ -116,7 +124,7 @@ async function handleMergeRequestOpen(id: number, iid: number, source_branch: st
       handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
     } else {
       label.create(id, iid, NOT_SUPPORTED_LABEL);
-      handleSlackMessaging(id, 'traingular_flag_on_post', glossary.slack_message_not_valid);
+      handleSlackMessaging(id, 'triangular_flag_on_post', glossary.slack_message_not_valid);
     }
   } catch (error) {
     label.create(id, iid, FAILED_LABEL);
@@ -132,7 +140,7 @@ async function handleMergeRequestOpen(id: number, iid: number, source_branch: st
  * @returns {Promise<void>} No return value.
  */
 
-async function handleMergeRequestUpdated() {
+async function handleMergeRequestUpdated(): Promise<void> {
   try {
   } catch {}
 }
@@ -146,19 +154,19 @@ async function handleMergeRequestUpdated() {
  * @returns {Promise<void>} No return value.
  */
 
-async function handleMergeRequestMerged(id: number) {
+async function handleMergeRequestMerged(id: number): Promise<void> {
   try {
-    handleSlackMessaging(id, 'white_check_mark', glossary.slack_message_feedback);
+    handleSlackMessaging(id, 'white_check_mark');
   } catch (error) {
     Logger.error(`Error validating merge request: ${error}`);
   }
 }
 
 // Utility function to handle Slack messaging
-function handleSlackMessaging(id: number, emoji: string, message: string) {
+function handleSlackMessaging(id: number, emoji?: string, message?: string) {
   if (SLACK_BOT_TOKEN) {
-    slack.emoji(id, emoji);
-    slack.thread(id, message);
+    if (emoji) slack.emoji(id, emoji);
+    if (message) slack.thread(id, message);
   }
 }
 
