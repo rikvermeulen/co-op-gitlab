@@ -100,6 +100,8 @@ async function processChange(
 
     const language: string | false = await identifyFile(new_path);
 
+    console.log('lang', language, 'frame', framework, 'diff', diff);
+
     if (!diff || deleted_file || !language) {
       Logger.info(`Ignored: ${new_path}`);
       return false;
@@ -108,6 +110,8 @@ async function processChange(
     const lineNumber: number = await getLastChangedLine(change, sourceBranch, projectId);
 
     const feedback: string | undefined = await getFeedback(change, language, framework);
+
+    console.log('feedback', feedback, 'line', lineNumber);
 
     if (!feedback || !lineNumber) {
       Logger.info("couldn't process feedback");
