@@ -5,15 +5,7 @@ const config = {
   extends: ['prettier'],
   plugins: ['@typescript-eslint', 'unused-imports'],
   ignorePatterns: ['node_modules/*', 'dist/*'],
-  rules: {
-    'prettier/prettier': [
-      'error',
-      {
-        singleQuote: true,
-        endOfLine: 'auto',
-      },
-    ],
-  },
+  rules: {},
   settings: {
     'import/resolver': {
       typescript: {
