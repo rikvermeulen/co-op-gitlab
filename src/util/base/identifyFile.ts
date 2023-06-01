@@ -35,6 +35,7 @@ const allowedExtensions: Record<string, string> = {
   '.rs': 'Rust',
   '.vue': 'Vue',
   '.svelte': 'Svelte',
+  '.blade.php': 'Blade',
   '.scss': 'SCSS',
   '.sass': 'SASS',
   '.sql': 'SQL',

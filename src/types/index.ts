@@ -60,3 +60,27 @@ export interface GitlabCommentPayload {
   position?: GitlabCommentPosition;
   labels?: string;
 }
+
+//identify framework types
+export interface File {
+  name: string;
+  path: string;
+}
+
+export interface DependencyManifest {
+  dependencies?: Record<string, unknown>;
+  devDependencies?: Record<string, unknown>;
+  require?: Record<string, unknown>;
+  'require-dev'?: Record<string, unknown>;
+  package?: DependencyManifest;
+  composer?: DependencyManifest;
+}
+
+export interface FrameworkSignature {
+  type: keyof DependencyManifest;
+  signature: string[];
+}
+
+export interface Glossary {
+  frameworkSignatures: Record<string, FrameworkSignature>;
+}

@@ -107,8 +107,6 @@ async function processChange(
 
     const lineNumber: number = await getLastChangedLine(change, sourceBranch, projectId);
 
-    console.log(`Processing: ${change.diff}`);
-
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
     if (!feedback || !lineNumber) {

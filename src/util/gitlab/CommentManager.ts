@@ -68,14 +68,15 @@ class CommentManager {
     user: string,
   ): Promise<void> {
     try {
-      const url = `projects/${projectId}/merge_requests/${mergeRequestId}`;
+      const url = `projects/${projectId}/merge_requests/${mergeRequestId}/notes`;
 
       const payload = {
         body: `@${user} The feedback process has started.`,
         in_reply_to_id: parentNoteId,
       };
 
-      const result = await new GitLab('POST', `${url}/notes`, payload).connect();
+      const result = await new GitLab('POST', url, payload).connect();
+
       Logger.info('Comment added to:', result.id);
     } catch (error) {
       Logger.error(`Error adding reply to merge request: ${error}`);

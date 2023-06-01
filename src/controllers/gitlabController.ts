@@ -16,16 +16,16 @@ controller.post('/', [validateGitlabToken], async (req: Request, res: Response) 
   try {
     if (event === MERGE_REQUEST_HOOK || event === SYSTEM_HOOK) {
       await handleMergeRequestEvent(payload);
+      res.status(201).send('Merge request handled successfully');
     }
 
     if (event === NOTE_HOOK) {
       await handleNoteEvent(payload);
+      res.status(201).send('Note event handled successfully');
     }
-
-    res.status(200).send('Merge request handled successfully');
   } catch (error) {
     Logger.error(`Error in gitlabController.post: ${error}`);
-    res.status(500).send('Error handling GitLab event');
+    res.status(500).send('Internal Server Error - an error occurred on the server');
   }
 });
 

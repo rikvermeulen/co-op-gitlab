@@ -1,50 +1,52 @@
-const LOG_LEVEL = 'status';
+import chalk from 'chalk';
 
-const color = (number: number) => {
-  return `\x1b[${number}m%s\x1b[0m`;
-};
+enum LogLevel {
+  ERROR = 0,
+  WARN = 1,
+  INFO = 2,
+  SUCCESS = 3,
+  STATUS = 4,
+}
 
-const timestamp = () => {
-  return new Date().toISOString();
-};
-
-const logLevels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  success: 3,
-  status: 4,
-};
-
-const shouldLog = (level: keyof typeof logLevels) => {
-  return logLevels[level] <= logLevels[LOG_LEVEL];
-};
+const LOG_LEVEL: LogLevel = LogLevel.STATUS;
 
 export const Logger = {
-  error(error: Error | string, code?: number) {
-    if (shouldLog('error')) {
+  timestamp: () => {
+    return new Date().toISOString();
+  },
+
+  shouldLog: (level: LogLevel) => {
+    return level <= LOG_LEVEL;
+  },
+
+  error: (error: Error | string, code?: number) => {
+    if (Logger.shouldLog(LogLevel.ERROR)) {
       const errorMessage = error instanceof Error ? error.message : error;
-      console.log(color(31), `[${timestamp()}] [ERROR] [${code || ''}]`, errorMessage);
+      console.error(chalk.red(`[${Logger.timestamp()}] [ERROR] [${code || '000'}]`), errorMessage);
     }
   },
-  warn(...args: unknown[]) {
-    if (shouldLog('warn')) {
-      console.log(color(33), `[${timestamp()}] [WARN]`, ...args);
+
+  warn: (...args: unknown[]) => {
+    if (Logger.shouldLog(LogLevel.WARN)) {
+      console.warn(chalk.yellow(`[${Logger.timestamp()}] [WARN]`), args.join(' '));
     }
   },
-  info(...args: unknown[]) {
-    if (shouldLog('info')) {
-      console.log(color(35), `[${timestamp()}] [INFO]`, ...args);
+
+  info: (...args: unknown[]) => {
+    if (Logger.shouldLog(LogLevel.INFO)) {
+      console.info(chalk.magenta(`[${Logger.timestamp()}] [INFO]`), args.join(' '));
     }
   },
-  success(...args: unknown[]) {
-    if (shouldLog('success')) {
-      console.log(color(32), `[${timestamp()}] [SUCCESS]`, ...args);
+
+  success: (...args: unknown[]) => {
+    if (Logger.shouldLog(LogLevel.SUCCESS)) {
+      console.log(chalk.green(`[${Logger.timestamp()}] [SUCCESS]`), args.join(' '));
     }
   },
-  status(...args: unknown[]) {
-    if (shouldLog('status')) {
-      console.log(`[${timestamp()}] [STATUS]`, ...args);
+
+  status: (...args: unknown[]) => {
+    if (Logger.shouldLog(LogLevel.STATUS)) {
+      console.log(chalk.blue(`[${Logger.timestamp()}] [STATUS]`), args.join(' '));
     }
   },
 };

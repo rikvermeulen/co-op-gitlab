@@ -1,84 +1,98 @@
 import NodeCache from 'node-cache';
 
+import { DependencyManifest, Glossary } from '@/types/index';
+
 import { GitLab } from '@/services/gitlab';
 import glossary from '@/util/glossary';
-
-interface File {
-  name: string;
-  path: string;
-}
-
-interface PackageJson {
-  dependencies?: Record<string, unknown>;
-  devDependencies?: Record<string, unknown>;
-}
-
-interface TreeNode {
-  path: string;
-}
 
 const frameworkCache = new NodeCache();
 
 async function identifyFramework(projectId: number, branch: string = 'main') {
-  const { frameworkSignatures } = glossary;
-  const cachedFramework = frameworkCache.get(`framework-${projectId}`);
+  const key = `framework-${projectId}`;
+
+  const { frameworkSignatures } = glossary as Glossary;
+  const cachedFramework = frameworkCache.get(key);
+
   if (cachedFramework) {
     return cachedFramework as string;
   }
 
   try {
-    const repoTree = await getRepoTree(projectId, branch);
+    const urlRepoTree = `/tree?ref=${branch}`;
+    const repoTree = await getFromGitlab(projectId, urlRepoTree);
 
     if (!repoTree) return 'Unknown';
 
-    const packageJson = repoTree.find((file: File) => file.name === 'package.json')
-      ? await getFileContent(projectId, 'package.json', branch)
-      : null;
-    const dependencies = packageJson ? getDependencies(packageJson) : new Set();
+    const fileContents = await getJsonFiles(repoTree, projectId, branch);
 
-    for (const [framework, { type, signature }] of Object.entries(frameworkSignatures)) {
-      switch (type) {
-        case 'package':
-          if (packageJson && signature.every((dependency) => dependencies.has(dependency))) {
-            frameworkCache.set(`framework-${projectId}`, framework);
-            return framework;
-          }
+    let framework = 'Unknown';
+    for (const [frameworkName, { type, signature }] of Object.entries(frameworkSignatures)) {
+      const fileContent = fileContents[type];
+      if (fileContent) {
+        const dependencies = getDependencies(fileContent);
+        if (signature.every((dependency) => dependencies.has(dependency))) {
+          framework = frameworkName;
           break;
-        case 'file':
-          if (signature.every((file) => repoTree.find((node: TreeNode) => node.path === file))) {
-            frameworkCache.set(`framework-${projectId}`, framework);
-            return framework;
-          }
-          break;
+        }
       }
     }
-    frameworkCache.set(`framework-${projectId}`, 'Unknown');
-    return 'Unknown';
+
+    frameworkCache.set(key, framework);
+
+    return framework;
   } catch (error) {
     console.error(error);
     return 'Unknown';
   }
 }
 
-async function getRepoTree(projectId: number, branch: string) {
-  const url = `projects/${encodeURIComponent(projectId)}/repository/tree?ref=${branch}`;
-
-  return await new GitLab('GET', url).connect();
+async function getFromGitlab(projectId: number, url: string) {
+  const baseUrl = `projects/${encodeURIComponent(projectId)}/repository${url}`;
+  try {
+    return await new GitLab('GET', baseUrl).connect();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
-async function getFileContent(projectId: number, filePath: string, branch: string) {
-  const url = `projects/${encodeURIComponent(projectId)}/repository/files/${encodeURIComponent(
-    filePath,
-  )}/raw?ref=${branch}`;
+function getDependencies(json: DependencyManifest): Set<string> {
+  const dependencies = new Set<string>();
 
-  return await new GitLab('GET', url).connect();
+  const keys: (keyof DependencyManifest)[] = [
+    'dependencies',
+    'devDependencies',
+    'require',
+    'require-dev',
+  ];
+
+  keys.forEach((key) => {
+    const value = json[key];
+    if (value) {
+      Object.keys(value).forEach((dependency) => dependencies.add(dependency));
+    }
+  });
+
+  return dependencies;
 }
 
-function getDependencies(packageJson: PackageJson): Set<string> {
-  return new Set([
-    ...Object.keys(packageJson.dependencies || {}),
-    ...Object.keys(packageJson.devDependencies || {}),
-  ]);
+async function getJsonFiles(repoTree: File[], projectId: number, branch: string) {
+  const jsonFileNames = ['package.json', 'composer.json'];
+  const fileContents: Partial<DependencyManifest> = {};
+
+  const promises = jsonFileNames.map(async (file) => {
+    if (repoTree.some((fileNode) => fileNode.name === file)) {
+      const urlFileContent = `/files/${encodeURIComponent(file)}/raw?ref=${branch}`;
+      const key = file.split('.')[0];
+      fileContents[key as keyof DependencyManifest] = await getFromGitlab(
+        projectId,
+        urlFileContent,
+      );
+    }
+  });
+
+  await Promise.all(promises);
+  return fileContents as DependencyManifest;
 }
 
 export { identifyFramework };

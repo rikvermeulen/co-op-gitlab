@@ -35,7 +35,7 @@ class GPT {
     }
 
     try {
-      const chatResponse = await openai.createChatCompletion({
+      const res = await openai.createChatCompletion({
         model: this.model,
         messages: [
           { role: 'system', content: `${this.system}` },
@@ -45,13 +45,15 @@ class GPT {
         temperature: this.temperature,
       });
 
-      if (!chatResponse.data.choices[0]) {
-        return Logger.error(`No response from OpenAI`);
+      const text = res.data.choices[0] || '';
+
+      if (!text) {
+        return Logger.error(`No response from OpenAI ${res.statusText}`, res.status);
       }
 
-      return chatResponse.data.choices[0].message?.content;
+      return text.message?.content;
     } catch (error) {
-      return Logger.error(`Error while fetching OpenAI response: ${error}`);
+      return Logger.error(`Error while fetching OpenAI response: ${error}`, 503);
     }
   }
 }

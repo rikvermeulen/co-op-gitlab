@@ -48,13 +48,12 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
 
   if (event_type !== 'merge_request') return;
 
-  Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
-
   if (state === 'opened' && !work_in_progress) {
     if (action === 'open' || action === 'reopen' || !action) {
       const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
       slack.messageWithMarkdown(id, text);
 
+      Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
       await handleMergeRequestOpen(id, iid, source_branch);
     }
 
@@ -85,15 +84,16 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
   } = payload;
 
   if (noteable_type !== 'MergeRequest') return;
-  Logger.info(`Handling note event for merge request ${iid} for project ${source_project_id}`);
 
   if (note && note.includes(GITLAB_COMMAND)) {
+    Logger.info(`Handling note event for merge request ${iid} for project ${source_project_id}`);
     try {
       comment.reply(source_project_id, iid, id, username);
 
       await handleMergeRequestFeedback(source_project_id, iid, source_branch);
     } catch (error) {
-      Logger.error(`Error validating merge request: ${error}`);
+      Logger.error(`Error handling merge request event: ${error}`);
+      throw error;
     }
   }
 
@@ -129,6 +129,7 @@ async function handleMergeRequestOpen(
   } catch (error) {
     label.create(id, iid, FAILED_LABEL);
     Logger.error(`Error validating merge request: ${error}`);
+    throw error;
   }
 }
 
@@ -142,7 +143,10 @@ async function handleMergeRequestOpen(
 
 async function handleMergeRequestUpdated(): Promise<void> {
   try {
-  } catch {}
+  } catch (error) {
+    Logger.error(`Error validating merge request: ${error}`);
+    throw error;
+  }
 }
 
 /**
@@ -159,6 +163,7 @@ async function handleMergeRequestMerged(id: number): Promise<void> {
     handleSlackMessaging(id, 'white_check_mark');
   } catch (error) {
     Logger.error(`Error validating merge request: ${error}`);
+    throw error;
   }
 }
 

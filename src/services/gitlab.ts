@@ -31,13 +31,13 @@ class GitLab {
       });
 
       if (!response.ok) {
-        Logger.error(`HTTP error ${response.status}`);
+        Logger.error('Error while fetching data from gitlab', response.status);
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
-      Logger.error(`Error connecting to GitLab: ${error}`);
+      Logger.error(`Error connecting to GitLab: ${error}`, 503);
     }
   }
 }

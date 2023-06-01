@@ -1,4 +1,5 @@
 /** @type {import("prettier").Config} */
+/** @type {import("@ianvs/prettier-plugin-sort-imports").PrettierConfig} */
 const config = {
   arrowParens: 'always',
   singleQuote: true,
@@ -23,9 +24,9 @@ const config = {
     '',
     '^[./]',
   ],
-  importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
+  importOrderParserPlugins: ['typescript', 'decorators-legacy'],
+  importOrderTypeScriptVersion: '5.0.0',
   plugins: ['@ianvs/prettier-plugin-sort-imports'],
-  pluginSearchDirs: false,
 };
 
 module.exports = config;

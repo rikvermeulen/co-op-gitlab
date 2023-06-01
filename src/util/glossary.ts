@@ -15,10 +15,9 @@ export default {
     'Next.js': { type: 'package', signature: ['next', 'react', 'react-dom'] },
     Express: { type: 'package', signature: ['express'] },
     Angular: { type: 'package', signature: ['@angular/core'] },
-
-    Magento: { type: 'file', signature: ['app/etc/env.php'] },
-    WordPress: { type: 'file', signature: ['wp-config.php'] },
-    TYPO3: { type: 'file', signature: ['typo3/index.php'] },
-    'Craft CMS': { type: 'file', signature: ['craft/app/index.php'] },
+    Magento: { type: 'composer', signature: ['magento/product-community-edition'] },
+    WordPress: { type: 'composer', signature: ['wp-cli/wp-cli'] },
+    TYPO3: { type: 'composer', signature: ['typo3/cms-core'] },
+    'Craft CMS': { type: 'composer', signature: ['craftcms/cms'] },
   },
 };
