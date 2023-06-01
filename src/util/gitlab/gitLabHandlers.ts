@@ -49,16 +49,18 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
   if (event_type !== 'merge_request') return;
 
   if (state === 'opened' && !work_in_progress) {
-    if (action === 'open' || action === 'reopen' || !action) {
+    // if (action === 'open' || action === 'reopen') {
+
+    // }
+
+    if (action === 'update') {
+      await handleMergeRequestUpdated();
+    } else {
       const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
       slack.messageWithMarkdown(id, text);
 
       Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
       await handleMergeRequestOpen(id, iid, source_branch);
-    }
-
-    if (action === 'update') {
-      await handleMergeRequestUpdated();
     }
   }
 
