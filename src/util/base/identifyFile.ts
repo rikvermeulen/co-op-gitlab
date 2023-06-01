@@ -40,6 +40,7 @@ const allowedExtensions: Record<string, string> = {
   '.sass': 'SASS',
   '.sql': 'SQL',
   '.twig': 'Twig',
+  '.phtml': 'PHP',
 };
 
 async function identifyFile(fileName: string): Promise<string | false> {

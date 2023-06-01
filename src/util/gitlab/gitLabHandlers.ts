@@ -49,10 +49,6 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
   if (event_type !== 'merge_request') return;
 
   if (state === 'opened' && !work_in_progress) {
-    // if (action === 'open' || action === 'reopen') {
-
-    // }
-
     if (action === 'update') {
       await handleMergeRequestUpdated();
     } else {

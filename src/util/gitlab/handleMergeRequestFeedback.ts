@@ -29,6 +29,7 @@ async function handleMergeRequestFeedback(
   try {
     do {
       const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
+      console.log(sourceBranch);
 
       const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
@@ -46,7 +47,7 @@ async function handleMergeRequestFeedback(
 
       const errors: Error[] = [];
       const promises = changes.map((change) =>
-        processChange(change, mergeRequestId, sourceBranch, projectId, framework)
+        processChange(change, mergeRequestId, projectId, framework)
           .then((res) => {
             feedbackAdded = feedbackAdded || res;
           })
@@ -89,7 +90,7 @@ async function handleMergeRequestFeedback(
 async function processChange(
   change: GitLabChanges,
   mergeRequestId: number,
-  sourceBranch: string,
+  // sourceBranch: string,
   projectId: number,
   framework: string,
 ): Promise<boolean> {
@@ -100,18 +101,14 @@ async function processChange(
 
     const language: string | false = await identifyFile(new_path);
 
-    console.log('lang', language, 'frame', framework, 'diff', diff);
-
     if (!diff || deleted_file || !language) {
       Logger.info(`Ignored: ${new_path}`);
       return false;
     }
 
-    const lineNumber: number = await getLastChangedLine(change, sourceBranch, projectId);
+    const lineNumber: number = await getLastChangedLine(change);
 
     const feedback: string | undefined = await getFeedback(change, language, framework);
-
-    console.log('feedback', feedback, 'line', lineNumber);
 
     if (!feedback || !lineNumber) {
       Logger.info("couldn't process feedback");

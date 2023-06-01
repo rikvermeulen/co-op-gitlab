@@ -2,9 +2,14 @@ import { Logger } from '@/server/Logger';
 
 import type { GitLabChanges } from '@/types/index';
 
-import { GitLab } from '@/services/index';
+// import { GitLab } from '@/services/index';
 
 function parseDiff(diff: string): number {
+  if (typeof diff !== 'string') {
+    Logger.error(`Expected diff to be a string, but got ${typeof diff}`);
+    return 0;
+  }
+
   const diffLines = diff.split('\n');
   let lineNumber = 0;
   let lastChangedLine = 0;
@@ -29,20 +34,20 @@ function parseDiff(diff: string): number {
 
 async function getLastChangedLine(
   change: GitLabChanges,
-  sourceBranch: string,
-  projectId: number,
+  // sourceBranch: string,
+  // projectId: number,
 ): Promise<number> {
-  const { diff, new_path } = change;
+  const { diff } = change;
 
   try {
-    const url = `/projects/${projectId}/repository/files/${encodeURIComponent(
-      new_path,
-    )}?ref=${encodeURIComponent(sourceBranch)}`;
-    const res = await new GitLab('GET', url).connect();
+    // const url = `/projects/${projectId}/repository/files/${encodeURIComponent(
+    //   new_path,
+    // )}?ref=${encodeURIComponent(sourceBranch)}`;
+    // const res = await new GitLab('GET', url).connect();
 
-    const content = Buffer.from(res.content, 'base64').toString('utf-8');
+    // const content = Buffer.from(res.content, 'base64').toString('utf-8');
 
-    if (!content) return 0;
+    // if (!content) return 0;
 
     return parseDiff(diff);
   } catch (error) {
