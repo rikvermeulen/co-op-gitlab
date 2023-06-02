@@ -3,11 +3,8 @@ import { Logger } from '@/server/Logger';
 import type { GitLabChanges } from '@/types/index';
 
 import { GitLab } from '@/services/index';
-import { identifyFile } from '@/util/base/identifyFile';
 import { identifyFramework } from '@/util/base/identifyFramework';
-import { CommentManager } from '@/util/gitlab/CommentManager';
-import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
-import { getFeedback } from '@/util/gpt/getFeedback';
+import { processChange } from '@/util/gitlab/processChange';
 
 /**
  * Handles feedback for a GitLab Merge Request
@@ -73,53 +70,6 @@ async function handleMergeRequestFeedback(
     return feedbackAdded;
   } catch (error) {
     Logger.error(`Error handling merge request feedback: ${error}`);
-    throw error;
-  }
-}
-
-/**
- * Processes a change in the GitLab Merge Request
- *
- * @param change - The GitLab change
- * @param mergeRequestId - The ID of the Merge Request
- * @param sourceBranch - The source branch name
- * @param projectId - The ID of the GitLab project
- * @param framework - The project's framework
- */
-
-async function processChange(
-  change: GitLabChanges,
-  mergeRequestId: number,
-  // sourceBranch: string,
-  projectId: number,
-  framework: string,
-): Promise<boolean> {
-  const commentManager = new CommentManager();
-
-  try {
-    const { diff, new_path, deleted_file, old_path } = change;
-
-    const language: string | false = await identifyFile(new_path);
-
-    if (!diff || deleted_file || !language) {
-      Logger.info(`Ignored: ${new_path}`);
-      return false;
-    }
-
-    const lineNumber: number = await getLastChangedLine(change);
-
-    const feedback: string | undefined = await getFeedback(change, language, framework);
-
-    if (!feedback || !lineNumber) {
-      Logger.info("couldn't process feedback");
-      return false;
-    }
-
-    commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
-
-    return true;
-  } catch (error) {
-    Logger.error(`Error processing change ${change.new_path}: ${error}`);
     throw error;
   }
 }

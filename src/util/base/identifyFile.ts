@@ -1,28 +1,13 @@
+import * as path from 'path';
 import NodeCache from 'node-cache';
 
 const fileCache = new NodeCache();
 
-/**
- * Checks if a file meets the requirements to receive feedback
- *
- * @param fileName The name of the file to check
- * @returns The language corresponding to the file extension if the file meets the requirements for feedback, false otherwise
- */
-// List of excluded file extensions
-const excludedExtensions: Set<string> = new Set([
-  '.md',
-  '.txt',
-  '.json',
-  '.lock',
-  '.yml',
-  '.yaml',
-  '.xml',
-  '.csv',
-  '.toml',
-]);
-
 // List of excluded file names
-const excludedFileNames: Set<string> = new Set(['LICENSE', 'node_modules', 'vendor']);
+const excludedFileNames: Set<string> = new Set(['LICENSE']);
+
+// List of excluded directories
+const excludedDirectories: Set<string> = new Set(['translations', 'node_modules', 'vendor']);
 
 // Map of allowed file extensions and their corresponding languages
 const allowedExtensions: Record<string, string> = {
@@ -49,27 +34,23 @@ async function identifyFile(fileName: string): Promise<string | false> {
     return cachedLanguage as string;
   }
 
-  // Check if the file is hidden
-  if (fileName.startsWith('.')) {
+  const directoryName = path.dirname(fileName); // the path without the file, like "template/pages"
+  const baseFileName: string = path.basename(fileName); // the file itself, like "product.twig"
+
+  // Skip if file is hidden or directory is excluded
+  if (baseFileName.startsWith('.') || excludedDirectories.has(directoryName)) {
     return false;
   }
 
-  // Check if the file has an excluded extension
-  const fileExtensionMatch = /(?:\.([^.]+))?$/.exec(fileName);
-  const fileExtension: string =
-    fileExtensionMatch && fileExtensionMatch[1] ? '.' + fileExtensionMatch[1] : '';
-
-  if (excludedExtensions.has(fileExtension)) {
-    return false;
-  }
-
-  // Check if the file has an excluded name
-  const baseFileName: string = fileName.substring(fileName.lastIndexOf('/') + 1);
+  // Skip if the file has an excluded name
   if (excludedFileNames.has(baseFileName)) {
     return false;
   }
 
-  // If the file passes all checks, check if it's in the list of allowed extensions
+  // Extract extension and check if it's in the list of allowed extensions
+  const fileExtensionMatch = /(?:\.([^.]+))?$/.exec(baseFileName);
+  const fileExtension: string = '.' + (fileExtensionMatch?.[1] ?? '');
+
   const language = allowedExtensions[fileExtension];
 
   if (language) {
