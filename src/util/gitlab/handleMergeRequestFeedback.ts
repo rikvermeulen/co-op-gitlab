@@ -37,6 +37,7 @@ async function handleMergeRequestFeedback(
 
       // If no changes, break the loop
       if (changes.length === 0) {
+        Logger.error(`No changes found in the PR: ${url}`);
         break;
       }
 
@@ -62,6 +63,7 @@ async function handleMergeRequestFeedback(
       }
 
       Logger.info(`Processed page ${page} of changes`);
+
       page++;
     } while (true);
 
