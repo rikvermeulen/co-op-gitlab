@@ -50,15 +50,16 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
 
   if (event_type !== 'merge_request') return;
 
+  const isRequested = labels.find((label) => label.title === REVIEW_REQUESTED_LABEL);
+
   if (state === 'opened' && !work_in_progress) {
-    console.log(labels);
-    if (labels.includes(REVIEW_REQUESTED_LABEL) || action === 'open' || action === 'reopen') {
+    if (isRequested || action === 'open' || action === 'reopen') {
       console.log(state, action, 'payload', payload);
       const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
       slack.messageWithMarkdown(id, text);
 
       Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
-      await handleMergeRequestOpen(id, iid, source_branch);
+      await handleMergeRequestOpen(id, iid);
     }
 
     if (action === 'update') {
@@ -83,7 +84,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
 async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
   const {
     object_attributes: { noteable_type, note, id },
-    merge_request: { iid, source_project_id, source_branch },
+    merge_request: { iid, source_project_id },
     user: { username },
   } = payload;
 
@@ -94,7 +95,7 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
     try {
       comment.reply(source_project_id, iid, id, username);
 
-      await handleMergeRequestFeedback(source_project_id, iid, source_branch);
+      await handleMergeRequestFeedback(source_project_id, iid);
     } catch (error) {
       Logger.error(`Error handling merge request event: ${error}`);
       throw error;
@@ -115,14 +116,10 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
  * @returns {Promise<void>} No return value.
  */
 
-async function handleMergeRequestOpen(
-  id: number,
-  iid: number,
-  source_branch: string,
-): Promise<void> {
+async function handleMergeRequestOpen(id: number, iid: number): Promise<void> {
   try {
     label.create(id, iid, IN_PROGRESS_LABEL);
-    const result = await handleMergeRequestFeedback(id, iid, source_branch);
+    const result = await handleMergeRequestFeedback(id, iid);
     if (result) {
       label.create(id, iid, SUCCESS_LABEL);
       handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);

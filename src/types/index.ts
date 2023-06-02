@@ -25,7 +25,11 @@ export type GitlabMergeEvent = {
     target_branch: string;
     work_in_progress: boolean;
     description: string;
-    labels: Array<string>;
+    labels: [
+      {
+        title: string;
+      },
+    ];
   };
   labels: { title: string }[];
 };
