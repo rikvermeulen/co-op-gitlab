@@ -26,7 +26,7 @@ async function handleMergeRequestFeedback(
     do {
       const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
 
-      const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
+      let changes = await getDiffs(url);
 
       if (!changes) {
         Logger.error(`Failed to fetch changes from GitLab API: ${projectId}`);
@@ -73,5 +73,23 @@ async function handleMergeRequestFeedback(
     throw error;
   }
 }
+
+//Gitlab has a delay on processing the changes for a MR. So this func tries a couple of times to fetch the changes
+const getDiffs = async (url: string, count = 0): Promise<GitLabChanges[]> => {
+  const maxRetries = 5;
+  const start = Date.now(); // Start time
+
+  const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
+
+  if (changes.length < 1 && count < maxRetries) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    return getDiffs(url, count + 1);
+  }
+
+  const duration = Date.now() - start;
+  Logger.info(`Got diffs after ${duration} ms and ${count + 1} attempts`);
+
+  return changes;
+};
 
 export { handleMergeRequestFeedback };

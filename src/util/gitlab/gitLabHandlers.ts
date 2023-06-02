@@ -53,12 +53,16 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
   const isRequested = labels.find((label) => label.title === REVIEW_REQUESTED_LABEL);
 
   if (state === 'opened' && !work_in_progress) {
-    if (isRequested || action === 'open' || action === 'reopen') {
-      console.log(state, action, 'payload', payload);
+    console.log(state, action, 'payload', payload);
+    if (action === 'open' || action === 'reopen') {
       const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
       slack.messageWithMarkdown(id, text);
 
       Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
+      await handleMergeRequestOpen(id, iid);
+    }
+
+    if (isRequested) {
       await handleMergeRequestOpen(id, iid);
     }
 
@@ -120,10 +124,11 @@ async function handleMergeRequestOpen(id: number, iid: number): Promise<void> {
   try {
     label.create(id, iid, IN_PROGRESS_LABEL);
     const result = await handleMergeRequestFeedback(id, iid);
+
     if (result) {
       label.create(id, iid, SUCCESS_LABEL);
       handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
-    } else {
+    } else if (!result) {
       label.create(id, iid, NOT_SUPPORTED_LABEL);
       handleSlackMessaging(id, 'triangular_flag_on_post', glossary.slack_message_not_valid);
     }
