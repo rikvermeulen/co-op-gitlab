@@ -23,28 +23,26 @@ async function handleMergeRequestFeedback(
   let feedbackAdded = false;
 
   try {
-    let changes;
     do {
-      while (!changes) {
-        const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
+      const url = `projects/${projectId}/merge_requests/${mergeRequestId}/diffs?page=${page}&per_page=${perPage}`;
 
-        changes = await new GitLab('GET', url).connect();
+      const changes: GitLabChanges[] = await new GitLab('GET', url).connect();
 
-        if (!changes) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
+      if (!changes) {
+        Logger.error(`Failed to fetch changes from GitLab API: ${projectId}`);
+        return false;
       }
 
       // If no changes, break the loop
-      if (changes.length <= 1) {
-        Logger.error(`No changes found in the PR: ${projectId}`);
+      if (changes.length < 1) {
+        Logger.error(`No more changes found in the PR: ${projectId} for page ${page}`);
         break;
       }
 
       const framework = await identifyFramework(projectId);
 
       const errors: Error[] = [];
-      const promises = changes.map((change: GitLabChanges) =>
+      const promises = changes.map((change) =>
         processChange(change, mergeRequestId, projectId, framework)
           .then((res) => {
             feedbackAdded = feedbackAdded || res;
