@@ -141,6 +141,7 @@ async function handleMergeRequestOpen(
 
 async function handleMergeRequestUpdated(): Promise<void> {
   try {
+    Logger.info('Update is triggerd');
   } catch (error) {
     Logger.error(`Error validating merge request: ${error}`);
     throw error;
