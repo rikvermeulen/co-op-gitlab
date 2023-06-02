@@ -8,6 +8,7 @@ import {
   GITLAB_COMMAND,
   IN_PROGRESS_LABEL,
   NOT_SUPPORTED_LABEL,
+  REVIEW_REQUESTED_LABEL,
   SUCCESS_LABEL,
 } from '@/util/consts';
 import { CommentManager } from '@/util/gitlab/CommentManager';
@@ -42,6 +43,7 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
       title,
       url,
       target_branch,
+      labels,
     },
     user: { name: user },
   } = payload;
@@ -49,6 +51,11 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
   if (event_type !== 'merge_request') return;
 
   if (state === 'opened' && !work_in_progress) {
+    console.log(state, action, 'payload', payload);
+    if (labels.includes(REVIEW_REQUESTED_LABEL)) {
+      await handleMergeRequestOpen(id, iid, source_branch);
+    }
+
     if (action === 'update') {
       await handleMergeRequestUpdated();
     } else {
