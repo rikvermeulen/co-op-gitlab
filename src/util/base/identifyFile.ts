@@ -24,6 +24,7 @@ const allowedExtensions: Record<string, string> = {
   '.sql': 'SQL',
   '.twig': 'Twig',
   '.phtml': 'PHP',
+  '.graphql': 'GraphQL',
 };
 
 async function identifyFile(fileName: string): Promise<string | false> {
