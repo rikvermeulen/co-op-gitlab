@@ -21,8 +21,6 @@ const allowedExtensions: Record<string, string> = {
   '.vue': 'Vue',
   '.svelte': 'Svelte',
   '.blade.php': 'Blade',
-  '.scss': 'SCSS',
-  '.sass': 'SASS',
   '.sql': 'SQL',
   '.twig': 'Twig',
   '.phtml': 'PHP',
