@@ -1,4 +1,5 @@
 import NodeCache from 'node-cache';
+import { Logger } from '@/server/Logger';
 
 import { DependencyManifest, Glossary } from '@/types/index';
 
@@ -41,7 +42,7 @@ async function identifyFramework(projectId: number, branch: string = 'main') {
 
     return framework;
   } catch (error) {
-    console.error(error);
+    Logger.error(`${error}`);
     return 'Unknown';
   }
 }
@@ -51,7 +52,7 @@ async function getFromGitlab(projectId: number, url: string) {
   try {
     return await new GitLab('GET', baseUrl).connect();
   } catch (error) {
-    console.error(error);
+    Logger.error(`${error}`);
     throw error;
   }
 }

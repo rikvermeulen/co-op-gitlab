@@ -78,14 +78,14 @@ class Server {
 
             this.#app.use(route.path, route.controller.getRouter(router.name));
           } else {
-            console.error('Error at line:', route);
+            Logger.error('Error at line:', route);
             throw new Error(`Class is not an instance of 'Controller'!`);
           }
         });
 
         Logger.info(`[SERVER] Loaded ${routes.length} router(s)`);
       } else {
-        console.error('Error at line:', router);
+        Logger.error('Error at line:', router);
         throw new Error(`Class is not an instance of 'Router'!`);
       }
     });

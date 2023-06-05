@@ -22,43 +22,27 @@ const comment = new CommentManager();
 const label = new LabelManager();
 
 const SLACK_BOT_TOKEN = config.SLACK_BOT_TOKEN || '';
+
 /**
  * This function handles a GitLab MergeRequest event.
- *
- * @async
- * @function handleMergeRequestEvent
- * @param {GitlabMergeEvent} payload - The GitLab MergeRequest event payload.
- * @returns {Promise<void>} No return value.
  */
+
 async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void> {
-  const {
-    event_type,
-    project: { id, name },
-    object_attributes: {
-      state,
-      action,
-      iid,
-      work_in_progress,
-      source_branch,
-      title,
-      url,
-      target_branch,
-      labels,
-    },
-    user: { name: user },
-  } = payload;
+  const { event_type, project, object_attributes, user } = payload;
+  const { state, action, iid, work_in_progress, labels, source_branch, target_branch, url, title } =
+    object_attributes;
+  const { id, name } = project;
 
   if (event_type !== 'merge_request') return;
 
   const isRequested = labels.find((label) => label.title === REVIEW_REQUESTED_LABEL);
 
   if (state === 'opened' && !work_in_progress) {
-    console.log(state, action, 'payload', payload);
     if (action === 'open' || action === 'reopen') {
       const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
-      slack.messageWithMarkdown(id, text);
+      slack.messageWithMarkdown(project.id, text);
 
-      Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
+      Logger.status(`Handling event for merge request ${iid} for project ${name}:${project.id}`);
       await handleMergeRequestOpen(id, iid);
     }
 
@@ -78,46 +62,29 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
 
 /**
  * This function handles a GitLab Note event.
- *
- * @async
- * @function handleNoteEvent
- * @param {GitlabNoteEvent} payload - The GitLab Note event payload.
- * @returns {Promise<void>} No return value.
  */
 
 async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
+  // Extract relevant data
   const {
     object_attributes: { noteable_type, note, id },
     merge_request: { iid, source_project_id },
     user: { username },
   } = payload;
 
-  if (noteable_type !== 'MergeRequest') return;
+  if (noteable_type !== 'MergeRequest' || !note.includes(GITLAB_COMMAND)) return;
 
-  if (note && note.includes(GITLAB_COMMAND)) {
-    Logger.info(`Handling note event for merge request ${iid} for project ${source_project_id}`);
-    try {
-      comment.reply(source_project_id, iid, id, username);
-
-      await handleMergeRequestFeedback(source_project_id, iid);
-    } catch (error) {
-      Logger.error(`Error handling merge request event: ${error}`);
-      throw error;
-    }
+  try {
+    comment.reply(source_project_id, iid, id, username);
+    await handleMergeRequestFeedback(source_project_id, iid);
+  } catch (error) {
+    Logger.error(`Error handling merge request event: ${error}`);
+    throw error;
   }
-
-  return;
 }
 
 /**
  * This function handles the opening of a GitLab MergeRequest.
- *
- * @async
- * @function handleMergeRequestOpen
- * @param {number} id - The ID of the project.
- * @param {number} iid - The internal ID of the merge request.
- * @param {string} source_branch - The source branch of the merge request.
- * @returns {Promise<void>} No return value.
  */
 
 async function handleMergeRequestOpen(id: number, iid: number): Promise<void> {
@@ -128,7 +95,7 @@ async function handleMergeRequestOpen(id: number, iid: number): Promise<void> {
     if (result) {
       label.create(id, iid, SUCCESS_LABEL);
       handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
-    } else if (!result) {
+    } else {
       label.create(id, iid, NOT_SUPPORTED_LABEL);
       handleSlackMessaging(id, 'triangular_flag_on_post', glossary.slack_message_not_valid);
     }
@@ -141,10 +108,6 @@ async function handleMergeRequestOpen(id: number, iid: number): Promise<void> {
 
 /**
  * This function handles a updated GitLab MergeRequest.
- *
- * @async
- * @function handleMergeRequestUpdated
- * @returns {Promise<void>} No return value.
  */
 
 async function handleMergeRequestUpdated(): Promise<void> {
@@ -158,11 +121,6 @@ async function handleMergeRequestUpdated(): Promise<void> {
 
 /**
  * This function handles a merged GitLab MergeRequest.
- *
- * @async
- * @function handleMergeRequestMerged
- * @param {number} id - The ID of the project.
- * @returns {Promise<void>} No return value.
  */
 
 async function handleMergeRequestMerged(id: number): Promise<void> {
