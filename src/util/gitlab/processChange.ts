@@ -41,7 +41,10 @@ async function processChange(
       return false;
     }
 
-    if (countChangesInDiff(diff) <= 3) {
+    const totalChanges: number = countChangesInDiff(diff);
+    console.log(totalChanges);
+
+    if (totalChanges <= 3) {
       Logger.info(`Ignored: ${new_path} - because the change is too small`);
       return false;
     }
