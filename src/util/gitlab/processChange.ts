@@ -41,6 +41,11 @@ async function processChange(
       return false;
     }
 
+    if (countChangesInDiff(diff) <= 3) {
+      Logger.info(`Ignored: ${new_path} - because the change is too small`);
+      return false;
+    }
+
     const lineNumber: number = await getLastChangedLine(change);
 
     if (lineNumber <= 1) {
@@ -63,6 +68,21 @@ async function processChange(
     Logger.error(`Error processing change ${change.new_path}: ${error}`);
     throw error;
   }
+}
+
+export function countChangesInDiff(diff: string) {
+  // Split the diff into lines
+  const lines = diff.split('\n');
+
+  // Count the lines that start with '+', ignoring the first line (diff header)
+  let totalChangedLines = 0;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i]!.startsWith('+')) {
+      totalChangedLines++;
+    }
+  }
+
+  return totalChangedLines;
 }
 
 export { processChange };
