@@ -58,7 +58,7 @@ async function getFeedback(
 
     // If the sentiment is negative, handle it
     if (result.score < 0) {
-      return glossary.sentiment_error;
+      return undefined;
     }
 
     return feedback;
