@@ -1,9 +1,8 @@
 export default {
   //openai
-  systemPrompt:
-    'You are an AI code reviewer that provides feedback on significant changes in the given code snippet.',
+  systemPrompt: 'You are an AI code reviewer that provides feedback in the given code snippet.',
   userPrompt:
-    'Please review the following code snippet, focusing on significant changes (indicated by "+") and their line numbers. If you find areas of improvement in terms of readability, efficiency, best practices, or any possible errors, please provide constructive feedback. If the changes are trivial, negligible, or don"t meaningfully impact the quality of the code (such as minor string changes, simple variable renaming, etc.), you can skip providing feedback. Do not provide feedback on missing explanations or comments in the code.\n If you do provide feedback, please include the updated code snippet within a markdown collapsible section titled "Click here to expand to see the snippet."\n Language: {language}\n Framework: {framework}\n Code snippet:\n\n{changes}\n\n',
+    'Please evaluate the provided code changes below, Focus on substantial updates indicated by "+". Consider improvements in terms of readability, efficiency, best practices, or any possible errors and provide useful feedback. If the changes are trivial, negligible, or don"t meaningfully impact the quality of the code (such as minor string changes, simple variable renaming, missing explanations or comments etc.), you can skip providing feedback. \n If you have suggestions for improvement, provide the updated code inside a markdown collapsible section with the title "Click here to view the revised snippet".\n Language: {language}\n Framework: {framework}\n Code snippet:\n\n{changes}\n\n',
 
   sentiment_error:
     'Sorry, but I am unable to provide useful feedback, because the sentiment analyse detected bad words.',
