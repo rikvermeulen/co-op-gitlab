@@ -11,6 +11,8 @@ export default {
   //slack
   slack_message_feedback: 'Hi, I added some feedback to your merge request :robot_face:',
   slack_message_not_valid: 'This pull request is skipped for feedback :triangular_flag_on_post:',
+  slack_message_skip_branch:
+    'This pull request is skipped because the source or target branch is an expection :triangular_flag_on_post:',
   slack_message_merged: 'This Merge-request has been merged  :robot_face:',
 
   //support frameworks
