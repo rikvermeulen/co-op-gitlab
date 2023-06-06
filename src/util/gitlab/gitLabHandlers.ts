@@ -33,6 +33,10 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
     object_attributes;
   const { id, name } = project;
 
+  if (user.id === 27) {
+    return;
+  }
+
   if (event_type !== 'merge_request') return;
 
   const isRequested = labels.find((label) => label.title === REVIEW_REQUESTED_LABEL);
