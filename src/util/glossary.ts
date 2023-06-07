@@ -5,9 +5,6 @@ export default {
   userPrompt:
     'Please give feedback on the provided code changes below, Focus on substantial updates indicated by "+". Consider improvements in terms of readability, efficiency, best practices, or any possible errors and provide useful feedback. If the changes are trivial, negligible, or don"t meaningfully impact the quality of the code (such as minor string changes, simple variable renaming, missing explanations or comments etc.), you can skip providing feedback. \n If you have suggestions for improvement, provide the updated code inside a markdown collapsible section with the title "Click here to view the revised snippet".\n Language: {language}\n Framework: {framework}\n Code snippet:\n\n{changes}\n\n',
 
-  sentiment_error:
-    'Sorry, but I am unable to provide useful feedback, because the sentiment analyse detected bad words.',
-
   //slack
   slack_message_merge_request: `*New Merge Request Created for '{name}'*\n\nA new merge request has been created for the \`{source_branch}\` branch into \`{target_branch}\`:\n\n*Title:* {title}\n*Author:* {user.name}\n*Link:* {url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`,
   slack_message_feedback: 'Hi, I added some feedback to your merge request :robot_face:',
