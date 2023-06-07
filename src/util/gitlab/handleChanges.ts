@@ -14,9 +14,10 @@ import { processChange } from '@/util/gitlab/processChange';
  * @param sourceBranch - The source branch name
  */
 
-async function handleMergeRequestFeedback(
+async function handleChanges(
   projectId: number,
   mergeRequestId: number,
+  currentBranch: string,
 ): Promise<boolean> {
   const perPage = 20;
   let page = 1;
@@ -39,7 +40,7 @@ async function handleMergeRequestFeedback(
         break;
       }
 
-      const framework = await identifyFramework(projectId);
+      const framework = await identifyFramework(projectId, currentBranch);
 
       const errors: Error[] = [];
       const promises = changes.map((change) =>
@@ -59,9 +60,6 @@ async function handleMergeRequestFeedback(
 
         throw new Error('Some changes failed to process');
       }
-
-      Logger.info(`Processed page ${page} of changes`);
-
       page++;
     } while (true);
 
@@ -92,4 +90,4 @@ const getDiffs = async (url: string, count = 0): Promise<GitLabChanges[]> => {
   return changes;
 };
 
-export { handleMergeRequestFeedback };
+export { handleChanges };

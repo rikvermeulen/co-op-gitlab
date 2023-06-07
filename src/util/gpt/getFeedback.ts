@@ -7,7 +7,10 @@ import type { GitLabChanges } from '@/types/index';
 import type { AvailableChatModels } from '@/services/gpt';
 import { GPT } from '@/services/index';
 import glossary from '@/util/glossary';
-import { createGPTPrompt, Parameter } from '@/util/gpt/createGPTPrompt';
+import {
+  PromptParameters,
+  replacePlaceholdersInString,
+} from '@/helpers/replacePlaceholdersInString';
 
 const sentiment = new Sentiment();
 
@@ -34,23 +37,14 @@ async function getFeedback(
     const { userPrompt, systemPrompt } = glossary;
 
     const model = (config.OPENAI_MODEL as AvailableChatModels) || 'gpt-3.5-turbo';
-    const parameters: Parameter[] = [
-      {
-        key: 'language',
-        value: language,
-      },
-      {
-        key: 'framework',
-        value: framework,
-      },
-      {
-        key: 'changes',
-        value: change.diff,
-      },
-    ];
+    const parameters: PromptParameters = {
+      language,
+      framework,
+      changes: change.diff,
+    };
 
     //prompt for the user
-    const user: string = createGPTPrompt(userPrompt, parameters);
+    const user: string = replacePlaceholdersInString(userPrompt, parameters);
 
     const feedback: string = await new GPT(user, systemPrompt, model).connect();
 
@@ -58,13 +52,13 @@ async function getFeedback(
 
     // If the sentiment is negative, handle it
     if (result.score < 0) {
-      return undefined;
+      return;
     }
 
     return feedback;
   } catch (error) {
     Logger.error(`Error generating feedback for change ${change.new_path}: ${error}`);
-    return undefined;
+    throw error;
   }
 }
 

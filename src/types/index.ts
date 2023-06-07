@@ -42,6 +42,7 @@ export type GitlabNoteEvent = {
     noteable_type: string;
     note: string;
     id: number;
+    source_branch: string;
   };
   merge_request: {
     iid: number;
@@ -82,13 +83,4 @@ export interface DependencyManifest {
   'require-dev'?: Record<string, unknown>;
   package?: DependencyManifest;
   composer?: DependencyManifest;
-}
-
-export interface FrameworkSignature {
-  type: keyof DependencyManifest;
-  signature: string[];
-}
-
-export interface Glossary {
-  frameworkSignatures: Record<string, FrameworkSignature>;
 }

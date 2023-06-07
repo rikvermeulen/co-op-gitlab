@@ -7,55 +7,28 @@ import { CommentManager } from '@/util/gitlab/CommentManager';
 import { getLastChangedLine } from '@/util/gitlab/getLastChangedLine';
 import { getFeedback } from '@/util/gpt/getFeedback';
 
+const MINIMUM_CHANGE_COUNT = 3;
+
 /**
  * Processes a change in the GitLab Merge Request
- *
- * @param change - The GitLab change
- * @param mergeRequestId - The ID of the Merge Request
- * @param sourceBranch - The source branch name
- * @param projectId - The ID of the GitLab project
- * @param framework - The project's framework
  */
 
 async function processChange(
   change: GitLabChanges,
   mergeRequestId: number,
-  // sourceBranch: string,
   projectId: number,
   framework: string,
 ): Promise<boolean> {
   const commentManager = new CommentManager();
 
   try {
-    const { diff, new_path, deleted_file, old_path } = change;
+    const hasValidChanges = await validChanges(change);
 
-    if (!diff || deleted_file) {
-      Logger.info(`Ignored: ${new_path} - because file is deleted or has no changes`);
-      return false;
-    }
+    if (!hasValidChanges) return false;
 
-    const language: string | false = await identifyFile(new_path);
+    const { language, lineNumber } = hasValidChanges;
 
-    if (!language) {
-      Logger.info(`Ignored: ${new_path} - because langauge or Dir is not supported`);
-      return false;
-    }
-
-    const totalChanges: number = countChangesInDiff(diff);
-
-    if (totalChanges <= 3) {
-      Logger.info(`Ignored: ${new_path} - because the change is too small`);
-      return false;
-    }
-
-    const lineNumber: number = await getLastChangedLine(change);
-
-    if (lineNumber <= 1) {
-      Logger.info('The linenumber is unset');
-      return false;
-    }
-
-    Logger.status(`Changes for ${new_path} are send for feedback`);
+    Logger.status(`Changes for ${change.new_path} are send for feedback`);
     const feedback: string | undefined = await getFeedback(change, language, framework);
 
     if (!feedback) {
@@ -63,7 +36,14 @@ async function processChange(
       return false;
     }
 
-    commentManager.create(projectId, mergeRequestId, old_path, new_path, feedback, lineNumber);
+    commentManager.create(
+      projectId,
+      mergeRequestId,
+      change.old_path,
+      change.new_path,
+      feedback,
+      lineNumber,
+    );
 
     return true;
   } catch (error) {
@@ -71,8 +51,42 @@ async function processChange(
     throw error;
   }
 }
+async function validChanges(change: GitLabChanges) {
+  const { diff, new_path, deleted_file } = change;
 
-export function countChangesInDiff(diff: string) {
+  if (!diff || deleted_file) {
+    Logger.info(`Ignored: ${new_path} - because file is deleted or has no changes`);
+    return false;
+  }
+
+  const language: string | false = await identifyFile(new_path);
+
+  if (!language) {
+    Logger.info(`Ignored: ${new_path} - because language or Directory is not supported`);
+    return false;
+  }
+
+  const totalChanges: number = countChangesInDiff(diff);
+
+  if (totalChanges <= MINIMUM_CHANGE_COUNT) {
+    Logger.info(`Ignored: ${new_path} - because the change is too small`);
+    return false;
+  }
+
+  const lineNumber: number = await getLastChangedLine(change);
+
+  if (lineNumber <= 1) {
+    Logger.info('The line number is unset');
+    return false;
+  }
+
+  return {
+    language: language,
+    lineNumber: lineNumber,
+  };
+}
+
+function countChangesInDiff(diff: string) {
   // Split the diff into lines
   const lines = diff.split('\n');
 

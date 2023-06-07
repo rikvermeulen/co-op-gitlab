@@ -1,17 +1,16 @@
 import NodeCache from 'node-cache';
 import { Logger } from '@/server/Logger';
 
-import { DependencyManifest, Glossary } from '@/types/index';
+import { DependencyManifest } from '@/types/index';
 
 import { GitLab } from '@/services/gitlab';
-import glossary from '@/util/glossary';
+import { supportedFrameworks } from '@/util/consts';
 
 const frameworkCache = new NodeCache();
 
 async function identifyFramework(projectId: number, branch: string = 'main') {
   const key = `framework-${projectId}`;
 
-  const { frameworkSignatures } = glossary as Glossary;
   const cachedFramework = frameworkCache.get(key);
 
   if (cachedFramework) {
@@ -27,8 +26,8 @@ async function identifyFramework(projectId: number, branch: string = 'main') {
     const fileContents = await getJsonFiles(repoTree, projectId, branch);
 
     let framework = 'Unknown';
-    for (const [frameworkName, { type, signature }] of Object.entries(frameworkSignatures)) {
-      const fileContent = fileContents[type];
+    for (const [frameworkName, { type, signature }] of Object.entries(supportedFrameworks)) {
+      const fileContent = fileContents[type as keyof DependencyManifest];
       if (fileContent) {
         const dependencies = getDependencies(fileContent);
         if (signature.every((dependency) => dependencies.has(dependency))) {

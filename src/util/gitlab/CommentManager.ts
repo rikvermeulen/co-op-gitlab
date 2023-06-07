@@ -45,9 +45,9 @@ class CommentManager {
       };
 
       // Add the comment to the merge request
-      const result = await new GitLab('POST', `${url}/discussions`, payload).connect();
+      await new GitLab('POST', `${url}/discussions`, payload).connect();
 
-      Logger.info('Comment added to:', result.id);
+      Logger.info('Comment added to:', filePath);
     } catch (error) {
       Logger.error(`Error adding comment to merge request: ${error}`);
     }
