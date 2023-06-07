@@ -7,7 +7,7 @@ const fileCache = new NodeCache();
 const excludedFileNames: Set<string> = new Set(['LICENSE']);
 
 // List of excluded directories
-const excludedDirectories: Set<string> = new Set(['translations', 'node_modules', 'vendor']);
+const excludedDirectories: Set<string> = new Set(['translations/', 'node_modules', 'vendor']);
 
 // Map of allowed file extensions and their corresponding languages
 const allowedExtensions: Record<string, string> = {

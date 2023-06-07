@@ -6,6 +6,8 @@ import type { GitlabMergeEvent, GitlabNoteEvent } from '@/types/index';
 import {
   FAILED_LABEL,
   GITLAB_COMMAND,
+  IGNORED_BRANCHES,
+  IGNORED_USERS,
   IN_PROGRESS_LABEL,
   NOT_SUPPORTED_LABEL,
   REVIEW_REQUESTED_LABEL,
@@ -33,25 +35,20 @@ async function handleMergeRequestEvent(payload: GitlabMergeEvent): Promise<void>
     object_attributes;
   const { id, name } = project;
 
-  if (user.id === 27) {
-    return;
-  }
+  const validUser = !IGNORED_USERS.includes(user.id);
+  const validBranch =
+    !IGNORED_BRANCHES.includes(source_branch) && !IGNORED_BRANCHES.includes(target_branch);
 
-  if (event_type !== 'merge_request') return;
+  if (event_type !== 'merge_request' || !validBranch || !validUser) return;
 
+  const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user.name}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
   const isRequested = labels.find((label) => label.title === REVIEW_REQUESTED_LABEL);
 
   if (state === 'opened' && !work_in_progress) {
-    if (action === 'open' || action === 'reopen') {
-      const text = `*New Merge Request Created for '${name}'*\n\nA new merge request has been created for the \`${source_branch}\` branch into \`${target_branch}\`:\n\n*Title:* ${title}\n*Author:* ${user.name}\n*Link:* ${url}\n\n @channel Please review the changes and leave any feedback or comments on the merge request page in GitLab.`;
-      slack.messageWithMarkdown(project.id, text);
-
+    if (action === 'open' || action === 'reopen' || isRequested) {
+      if (!isRequested) slack.messageWithMarkdown(project.id, text);
       Logger.status(`Handling event for merge request ${iid} for project ${name}:${project.id}`);
-      await handleMergeRequestOpen(id, iid, source_branch, target_branch);
-    }
-
-    if (isRequested) {
-      await handleMergeRequestOpen(id, iid, source_branch, target_branch);
+      await handleMergeRequestOpen(id, iid);
     }
 
     if (action === 'update') {
@@ -91,29 +88,16 @@ async function handleNoteEvent(payload: GitlabNoteEvent): Promise<void> {
  * This function handles the opening of a GitLab MergeRequest.
  */
 
-async function handleMergeRequestOpen(
-  id: number,
-  iid: number,
-  source_branch: string,
-  target_branch: string,
-): Promise<void> {
+async function handleMergeRequestOpen(id: number, iid: number): Promise<void> {
   try {
     label.create(id, iid, IN_PROGRESS_LABEL);
 
-    if (target_branch !== 'accept' || source_branch !== 'accept') {
-      const result = await handleMergeRequestFeedback(id, iid);
+    const result = await handleMergeRequestFeedback(id, iid);
+    const statusLabel = result ? SUCCESS_LABEL : NOT_SUPPORTED_LABEL;
+    const message = result ? glossary.slack_message_feedback : glossary.slack_message_not_valid;
 
-      if (result) {
-        label.create(id, iid, SUCCESS_LABEL);
-        handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
-      } else {
-        label.create(id, iid, NOT_SUPPORTED_LABEL);
-        handleSlackMessaging(id, 'triangular_flag_on_post', glossary.slack_message_not_valid);
-      }
-    } else {
-      label.create(id, iid, NOT_SUPPORTED_LABEL);
-      handleSlackMessaging(id, 'triangular_flag_on_post', glossary.slack_message_skip_branch);
-    }
+    label.create(id, iid, statusLabel);
+    handleSlackMessaging(id, 'speech_balloon', message);
   } catch (error) {
     label.create(id, iid, FAILED_LABEL);
     Logger.error(`Error validating merge request: ${error}`);
