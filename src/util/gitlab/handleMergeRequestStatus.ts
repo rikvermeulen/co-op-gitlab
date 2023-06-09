@@ -28,10 +28,10 @@ async function handleMergeRequestOpen(
 
     if (result) {
       label.create(id, iid, SUCCESS_LABEL);
-      handleSlackMessaging(id, ':speech_balloon:', glossary.slack_message_feedback);
+      handleSlackMessaging(id, 'speech_balloon', glossary.slack_message_feedback);
     } else {
       label.create(id, iid, NOT_SUPPORTED_LABEL);
-      handleSlackMessaging(id, ':triangular_flag_on_post:', glossary.slack_message_not_valid);
+      handleSlackMessaging(id, 'triangular_flag_on_post', glossary.slack_message_not_valid);
     }
   } catch (error) {
     label.create(id, iid, FAILED_LABEL);
