@@ -51,7 +51,7 @@
     "@types/cors": "^2.8.13",
     "@types/eslint": "^8.40.1",
     "@types/express": "^4.17.17",
-    "@types/node": "^20.2.5",
+    "@types/node": "^20.3.0",
     "@types/sentiment": "^5.0.1",
     "@typescript-eslint/eslint-plugin": "^5.59.9",
     "@typescript-eslint/parser": "^5.59.9",
