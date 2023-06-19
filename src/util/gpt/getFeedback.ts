@@ -48,6 +48,7 @@ async function getFeedback(
 
     const feedback: string = await new GPT(user, systemPrompt, model).connect();
 
+    // Analyze the sentiment of the feedback
     const result = sentiment.analyze(feedback, options);
 
     // If the sentiment is negative, handle it
