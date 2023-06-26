@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from 'openai';
 import { config } from '@/server/Config';
 import { Logger } from '@/server/Logger';
 
-const { OPENAI_KEY, OPENAI_ORG } = config;
+const { OPENAI_KEY, OPENAI_ORG } = config.openai;
 
 export const chatModels = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0301'] as const;
 export type AvailableChatModels = (typeof chatModels)[number];

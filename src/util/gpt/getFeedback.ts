@@ -36,7 +36,7 @@ async function getFeedback(
   try {
     const { userPrompt, systemPrompt } = glossary;
 
-    const model = (config.OPENAI_MODEL as AvailableChatModels) || 'gpt-3.5-turbo';
+    const model = (config.openai.OPENAI_MODEL as AvailableChatModels) || 'gpt-3.5-turbo';
     const parameters: PromptParameters = {
       language,
       framework,

@@ -20,8 +20,8 @@ class Server {
     Logger.info('[SERVER] App starting...');
 
     // Set the host and port
-    this.#host = config.HOST ?? 'localhost';
-    this.#port = config.PORT ? parseInt(config.PORT, 10) : 3000;
+    this.#host = config.app.HOST ?? 'localhost';
+    this.#port = config.app.PORT ? parseInt(config.app.PORT, 10) : 3000;
 
     // Set the Express app to allow proxy's
     this.#app.enable('trust proxy');

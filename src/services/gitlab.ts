@@ -2,7 +2,7 @@ import fetch, { Response } from 'node-fetch';
 import { config } from '@/server/Config';
 import { Logger } from '@/server/Logger';
 
-const { GITLAB_HOST, GITLAB_TOKEN } = config;
+const { GITLAB_HOST, GITLAB_TOKEN } = config.gitlab;
 
 class GitLab {
   private baseURL: string;

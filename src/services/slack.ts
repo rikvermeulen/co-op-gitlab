@@ -2,7 +2,7 @@ import { WebClient } from '@slack/web-api';
 import { config } from '@/server/Config';
 import { Logger } from '@/server/Logger';
 
-const { SLACK_BOT_TOKEN, SLACK_CHANNEL } = config;
+const { SLACK_BOT_TOKEN, SLACK_CHANNEL } = config.slack;
 
 class Slack {
   private web: WebClient;
