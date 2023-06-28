@@ -10,10 +10,6 @@ import { Router } from '@/server/Router.js';
 
 import 'dotenv/config';
 
-import { createAgent } from '@forestadmin/agent';
-import { createSequelizeDataSource } from '@forestadmin/datasource-sequelize';
-import { sequelize } from '@/server/Database.js';
-
 class Server {
   #app = express();
 
@@ -113,19 +109,6 @@ class Server {
     );
 
     Logger.info(`[SERVER] Loaded default CORS headers`);
-  }
-
-  loadForestAdmin() {
-    createAgent({
-      authSecret: config.cms.FOREST_AUTH_SECRET,
-      envSecret: config.cms.FOREST_ENV_SECRET,
-      isProduction: process.env.NODE_ENV === 'production',
-    })
-      .addDataSource(createSequelizeDataSource(sequelize))
-      .mountOnExpress(this.#app)
-      .start();
-
-    Logger.info(`[SERVER] Loaded Forest Admin`);
   }
 
   includeDefaultCompression() {

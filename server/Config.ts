@@ -26,16 +26,12 @@ const config: Config = {
     SLACK_CHANNEL: process.env.SLACK_CHANNEL,
   },
   database: {
-    dialect: 'sqlite',
+    dialect: process.env.DB_DIALECT || 'sqlite',
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     database: process.env.DB_DATABASE,
-  },
-  cms: {
-    FOREST_AUTH_SECRET: process.env.FOREST_AUTH_SECRET || '',
-    FOREST_ENV_SECRET: process.env.FOREST_ENV_SECRET || '',
   },
 };
 

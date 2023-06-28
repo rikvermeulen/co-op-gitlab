@@ -21,6 +21,5 @@ Runtime(async () => {
   server.includeDefaultBodyParsers();
   server.includeDefaultCorsHeaders(`http://${HOST}:${PORT}`);
   server.loadRouters(routers);
-  server.loadForestAdmin();
   server.run();
 });

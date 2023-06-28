@@ -57,10 +57,6 @@ export interface Config {
     port: number;
     database: string | undefined;
   };
-  cms: {
-    FOREST_AUTH_SECRET: string;
-    FOREST_ENV_SECRET: string;
-  };
 }
 
 export interface Route {
