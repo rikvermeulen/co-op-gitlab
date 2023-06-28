@@ -2,7 +2,7 @@ import { Options, Sequelize } from 'sequelize';
 import { config } from '@/server/Config';
 import { Logger } from '@/server/Logger';
 
-const sequelize = new Sequelize({
+export const sequelize = new Sequelize({
   storage: `${process.cwd()}/db.sqlite`,
   logging: (msg: any) => Logger.info(`[DB] ${msg}`),
   ...config.database,

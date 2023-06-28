@@ -8,6 +8,12 @@ import { Controller } from '@/server/Controllers.js';
 import { Logger } from '@/server/Logger.js';
 import { Router } from '@/server/Router.js';
 
+import 'dotenv/config';
+
+import { createAgent } from '@forestadmin/agent';
+import { createSequelizeDataSource } from '@forestadmin/datasource-sequelize';
+import { sequelize } from '@/server/Database.js';
+
 class Server {
   #app = express();
 
@@ -28,6 +34,18 @@ class Server {
 
     // Disable powered by header for security reasons
     this.#app.disable('x-powered-by');
+
+    createAgent({
+      authSecret: config.cms.FOREST_AUTH_SECRET,
+      envSecret: config.cms.FOREST_ENV_SECRET,
+      isProduction: process.env.NODE_ENV === 'production',
+      typingsMaxDepth: 5,
+    })
+      // Create your Sequelize datasource
+      .addDataSource(createSequelizeDataSource(sequelize))
+      // Replace "myExpressApp" by your Express application
+      .mountOnExpress(this.#app)
+      .start();
 
     // Expose a health check
     this.#app.use((req: Request, res: Response, next: NextFunction) => {

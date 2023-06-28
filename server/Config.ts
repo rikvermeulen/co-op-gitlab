@@ -33,6 +33,10 @@ const config: Config = {
     port: Number(process.env.DB_PORT),
     database: process.env.DB_DATABASE,
   },
+  cms: {
+    FOREST_AUTH_SECRET: process.env.FOREST_AUTH_SECRET || '',
+    FOREST_ENV_SECRET: process.env.FOREST_ENV_SECRET || '',
+  },
 };
 
 export { config };
