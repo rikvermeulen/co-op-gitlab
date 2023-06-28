@@ -35,16 +35,6 @@ class Server {
     // Disable powered by header for security reasons
     this.#app.disable('x-powered-by');
 
-    createAgent({
-      authSecret: config.cms.FOREST_AUTH_SECRET,
-      envSecret: config.cms.FOREST_ENV_SECRET,
-      isProduction: process.env.NODE_ENV === 'production',
-      typingsMaxDepth: 5,
-    })
-      .addDataSource(createSequelizeDataSource(sequelize))
-      .mountOnExpress(this.#app)
-      .start();
-
     // Expose a health check
     this.#app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.originalUrl === '/health') {
@@ -123,6 +113,19 @@ class Server {
     );
 
     Logger.info(`[SERVER] Loaded default CORS headers`);
+  }
+
+  loadForestAdmin() {
+    createAgent({
+      authSecret: config.cms.FOREST_AUTH_SECRET,
+      envSecret: config.cms.FOREST_ENV_SECRET,
+      isProduction: process.env.NODE_ENV === 'production',
+    })
+      .addDataSource(createSequelizeDataSource(sequelize))
+      .mountOnExpress(this.#app)
+      .start();
+
+    Logger.info(`[SERVER] Loaded Forest Admin`);
   }
 
   includeDefaultCompression() {
