@@ -41,9 +41,7 @@ class Server {
       isProduction: process.env.NODE_ENV === 'production',
       typingsMaxDepth: 5,
     })
-      // Create your Sequelize datasource
       .addDataSource(createSequelizeDataSource(sequelize))
-      // Replace "myExpressApp" by your Express application
       .mountOnExpress(this.#app)
       .start();
 
