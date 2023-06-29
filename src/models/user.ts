@@ -12,12 +12,30 @@ const user = (db: Sequelize): void => {
       },
       firstName: {
         type: DataTypes.STRING,
+        allowNull: false,
         validate: {
           notEmpty: true,
         },
       },
       lastName: {
         type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: false,
+        },
+      },
+      gitlabId: {
+        type: DataTypes.NUMBER,
+        unique: true,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      languagePreference: {
+        type: DataTypes.ENUM('English', 'Dutch', 'French', 'German', 'Spanish'),
+        defaultValue: 'English',
+        allowNull: false,
         validate: {
           notEmpty: true,
         },
@@ -25,11 +43,19 @@ const user = (db: Sequelize): void => {
       toneOfVoice: {
         type: DataTypes.STRING,
         validate: {
-          notEmpty: true,
+          notEmpty: false,
         },
       },
-      feedbackType: {
+      learningGoals: {
         type: DataTypes.STRING,
+        defaultValue: 'All',
+        validate: {
+          notEmpty: false,
+        },
+      },
+      commonMistakes: {
+        type: DataTypes.STRING,
+        defaultValue: 'None',
         validate: {
           notEmpty: true,
         },
