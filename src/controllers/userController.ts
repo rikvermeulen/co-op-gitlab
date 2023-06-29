@@ -3,9 +3,11 @@ import { ValidationError } from 'sequelize';
 import { Controller } from '@/server/Controllers';
 import Database from '@/server/Database.js';
 
+import authorizeUser from '@/middlewares/authorizeUser';
+
 const userController = new Controller('UserController');
 
-userController.post('/', [], async (req: Request, res: Response) => {
+userController.post('/', [authorizeUser], async (req: Request, res: Response) => {
   if (!Database.models.Developer) {
     res.status(404).send('Could not create developer, model not found');
     return;
@@ -22,7 +24,7 @@ userController.post('/', [], async (req: Request, res: Response) => {
   }
 });
 
-userController.get('/', [], async (_req: Request, res: Response) => {
+userController.get('/', [authorizeUser], async (_req: Request, res: Response) => {
   if (!Database.models.Developer) {
     res.status(404).send('Could not get developers, model not found');
     return;
@@ -31,7 +33,7 @@ userController.get('/', [], async (_req: Request, res: Response) => {
   res.json(users);
 });
 
-userController.get('/:id', [], async (req: Request, res: Response) => {
+userController.get('/:id', [authorizeUser], async (req: Request, res: Response) => {
   if (!Database.models.Developer) {
     res.status(404).send(`Could not get developer, model not found`);
     return;
@@ -41,7 +43,7 @@ userController.get('/:id', [], async (req: Request, res: Response) => {
   res.json(user);
 });
 
-userController.put('/:id', [], async (req: Request, res: Response) => {
+userController.put('/:id', [authorizeUser], async (req: Request, res: Response) => {
   if (!Database.models.Developer) {
     res.status(404).send('Could not update developer, model not found');
     return;
@@ -60,7 +62,7 @@ userController.put('/:id', [], async (req: Request, res: Response) => {
   }
 });
 
-userController.delete('/:id', [], async (req: Request, res: Response) => {
+userController.delete('/:id', [authorizeUser], async (req: Request, res: Response) => {
   if (!Database.models.Developer) {
     res.status(404).send('Could not delete developer, model not found');
     return;

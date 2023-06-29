@@ -57,6 +57,9 @@ export interface Config {
     port: number;
     database: string | undefined;
   };
+  api: {
+    secret: string;
+  };
 }
 
 export interface Route {

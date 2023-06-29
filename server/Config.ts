@@ -33,6 +33,9 @@ const config: Config = {
     port: Number(process.env.DB_PORT),
     database: process.env.DB_DATABASE,
   },
+  api: {
+    secret: process.env.JWT_SECRET || '',
+  },
 };
 
 export { config };

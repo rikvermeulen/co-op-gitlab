@@ -1,5 +1,15 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
+export interface DeveloperAttributes {
+  uuid: string;
+  firstName: string;
+  lastName: string;
+  gitlabId: number;
+  languagePreference: string;
+  toneOfVoice: string;
+  learningGoals: string;
+}
+
 const user = (db: Sequelize): void => {
   db.define(
     'Developer',
