@@ -1,9 +1,9 @@
 import { Router } from '@/server/Router';
 
-import { controller } from '@/controllers/gitlabController';
+import { gitlabController } from '@/controllers/gitlabController';
 
-const router = new Router('webhook');
+const gitlabRouter = new Router('webhook');
 
-router.add('/webhook', controller);
+gitlabRouter.add('/webhook', gitlabController);
 
-export { router };
+export { gitlabRouter };

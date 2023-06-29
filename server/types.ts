@@ -29,18 +29,37 @@ export interface RouterMethods {
 }
 
 export interface Config {
-  PORT: string | undefined;
-  HOST: string | undefined;
-  URL: string | undefined;
-  GITLAB_HOST: string | undefined;
-  GITLAB_TOKEN: string | undefined;
-  GITLAB_SECRET_TOKEN: string | undefined;
-  OPENAI_KEY: string | undefined;
-  OPENAI_ORG: string | undefined;
-  OPENAI_MODEL: string | undefined;
-  SLACK_BOT_TOKEN: string | undefined;
-  SLACK_CHANNEL: string | undefined;
-  LOG_LEVEL: string | undefined;
+  app: {
+    PORT: string | undefined;
+    HOST: string | undefined;
+    URL: string | undefined;
+    LOG_LEVEL: string | undefined;
+  };
+  gitlab: {
+    GITLAB_HOST: string | undefined;
+    GITLAB_TOKEN: string | undefined;
+    GITLAB_SECRET_TOKEN: string | undefined;
+  };
+  openai: {
+    OPENAI_KEY: string | undefined;
+    OPENAI_ORG: string | undefined;
+    OPENAI_MODEL: string | undefined;
+  };
+  slack: {
+    SLACK_BOT_TOKEN: string | undefined;
+    SLACK_CHANNEL: string | undefined;
+  };
+  database: {
+    dialect: string;
+    username: string | undefined;
+    password: string | undefined;
+    host: string | undefined;
+    port: number;
+    database: string | undefined;
+  };
+  api: {
+    secret: string;
+  };
 }
 
 export interface Route {

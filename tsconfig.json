@@ -13,6 +13,8 @@
       "@/util/*": ["src/util/*"],
       "@/types/*": ["src/types/*"],
       "@/controllers/*": ["src/controllers/*"],
+      "@/routers/*": ["src/routers/*"],
+      "@/models/*": ["src/models/*"],
       "@/helpers/*": ["src/helpers/*"],
       "@/services/*": ["src/services/*"],
       "@/middlewares/*": ["src/middlewares/*"]

@@ -21,10 +21,10 @@ import glossary from '@/util/glossary';
 import { replacePlaceholdersInString } from '@/helpers/replacePlaceholdersInString';
 
 // Initial setup
-const controller = new Controller('gitlabController');
+const gitlabController = new Controller('gitlabController');
 
 // Controller POST route
-controller.post('/', [validateGitlabToken], async (req: Request, res: Response) => {
+gitlabController.post('/', [validateGitlabToken], async (req: Request, res: Response) => {
   const event = req.header('X-Gitlab-Event');
   const payload: GitlabMergeEvent = req.body;
   try {
@@ -67,6 +67,8 @@ async function handleMergeRequest(payload: GitlabMergeEvent): Promise<void> {
       const isRequested = labels.find((label) => label.title === REVIEW_REQUESTED_LABEL);
 
       if (action === 'open' || action === 'reopen' || isRequested) {
+        // const preferences = await userPreferences(user);
+
         Logger.status(`Handling event for merge request ${iid} for project ${name}:${id}`);
         await handleMergeRequestOpen(id, iid, source_branch, action, message);
       }
@@ -102,4 +104,8 @@ function validateMergeRequest(
   return true;
 }
 
-export { controller };
+// function userPreferences(user: number) {
+
+// }
+
+export { gitlabController };
