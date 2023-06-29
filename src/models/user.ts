@@ -2,7 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 
 const user = (db: Sequelize): void => {
   db.define(
-    'User',
+    'Developer',
     {
       uuid: {
         type: DataTypes.UUID,
@@ -36,7 +36,7 @@ const user = (db: Sequelize): void => {
       },
     },
     {
-      tableName: 'users',
+      tableName: 'developers',
     },
   );
 };
