@@ -50,7 +50,6 @@ ENV CONFIG_DIR=/
 
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/.forestadmin-schema.json ./.forestadmin-schema.json
 
 
 # Expose the webhook's port
