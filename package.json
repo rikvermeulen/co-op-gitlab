@@ -43,7 +43,7 @@
     "sentiment": "^5.0.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.5",
+    "@commitlint/cli": "^17.7.1",
     "@commitlint/config-conventional": "^17.6.5",
     "@commitlint/cz-commitlint": "^17.5.0",
     "@ianvs/prettier-plugin-sort-imports": "4.0.2",
